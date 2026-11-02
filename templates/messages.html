@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>LAN Dropbox | Messages</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+
+  <body>
+    <main class="container">
+      <header class="site-header">
+        <div class="header-top">
+          <div class="brand">
+            <span class="logo-mark" aria-hidden="true"></span>
+            <div class="brand-copy">
+              <div class="logo">LAN DROPBOX</div>
+              <div class="subtitle">LOCAL NETWORK / MESSAGE RELAY</div>
+            </div>
+          </div>
+
+          <div class="header-controls">
+            <nav class="navigation" aria-label="Main navigation">
+              <a href="/" class="nav-link">HOME</a>
+              <a href="/messages" class="nav-link" aria-current="page">MESSAGES</a>
+            </nav>
+            <div class="status">
+              <span class="status-dot" aria-hidden="true"></span>
+              SYSTEM ONLINE
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">INBOUND CHANNEL</p>
+            <h1>MESSAGE ARCHIVE</h1>
+          </div>
+          <div class="message-count" id="message-count" aria-live="polite">0 RECEIVED</div>
+        </div>
+
+        <div id="messages" class="messages">
+          <div class="empty-state">
+            <span class="empty-mark" aria-hidden="true">&gt;_</span>
+            <span>LOADING TRANSMISSIONS</span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>LAN CONNECTION</span>
+        <span class="footer-separator" aria-hidden="true">//</span>
+        <span>LOCAL NETWORK ONLY</span>
+      </footer>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  </body>
+</html>
