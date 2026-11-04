@@ -44,12 +44,16 @@ class FileSharingTests(unittest.TestCase):
             content_type="multipart/form-data",
         )
 
-    def test_files_page_is_available_from_navigation(self):
-        response = self.client.get("/files")
+    def test_upload_form_is_on_home_and_files_page_only_lists_files(self):
+        home = self.client.get("/")
+        files = self.client.get("/files")
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'href="/files"', response.data)
-        self.assertIn(b"file-upload-form", response.data)
+        self.assertEqual(home.status_code, 200)
+        self.assertIn(b"file-upload-form", home.data)
+        self.assertEqual(files.status_code, 200)
+        self.assertIn(b'href="/files"', files.data)
+        self.assertIn(b'id="files"', files.data)
+        self.assertNotIn(b"file-upload-form", files.data)
 
     def test_upload_and_list_metadata(self):
         response = self.upload(b"hello", "../../hello.TXT")

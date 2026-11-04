@@ -52,6 +52,30 @@
         </form>
       </section>
 
+      <section class="section">
+        <h1>Upload a file</h1>
+
+        <form class="file-upload-form" id="file-upload-form">
+          <label class="field-label" for="file-input">Choose a file</label>
+          <input
+            id="file-input"
+            name="file"
+            type="file"
+            accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.docx,.xlsx,.pptx,.txt,.md,.csv,.zip"
+            required
+          />
+          <div class="form-footer">
+            <span class="file-rules"
+              >Up to 100 MB. Images, documents, text files, and ZIP archives.</span
+            >
+            <button type="submit" class="btn" id="file-upload-button">
+              Upload
+            </button>
+          </div>
+          <p class="file-status" id="file-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
       <footer class="footer">Local network only</footer>
     </main>
 
