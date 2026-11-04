@@ -1,6 +1,7 @@
 let adminPassword = "";
 let searchQuery = "";
 let searchTimer = null;
+let lastRenderedMessagesKey = null;
 
 async function copyText(text) {
   // Use the modern Clipboard API when available in a secure context.
@@ -26,24 +27,53 @@ async function copyText(text) {
   return successful;
 }
 
-async function handleCopy(button, text) {
+const copyFeedbackTimers = new WeakMap();
+
+async function handleCopy(card, text, line = null) {
+  const feedback = card.querySelector(".message-copy-feedback");
+
+  if (!feedback) {
+    return;
+  }
+
+  clearTimeout(copyFeedbackTimers.get(feedback));
+  card.querySelector(".message-line.is-copied")?.classList.remove("is-copied");
+  feedback.textContent = "Copying...";
+  feedback.classList.remove("is-failed");
+  feedback.classList.add("is-visible");
+  line?.classList.add("is-copied");
+
   try {
     const successful = await copyText(text);
 
-    button.textContent = successful ? "Copied" : "Failed";
-    button.classList.toggle("is-copied", successful);
-    button.classList.toggle("is-failed", !successful);
+    feedback.textContent = successful
+      ? line
+        ? "Line copied"
+        : "Message copied"
+      : "Copy failed";
+    feedback.classList.toggle("is-failed", !successful);
+    line?.classList.toggle("is-copied", successful);
+
+    if (!successful) {
+      console.error("Copy failed: clipboard operation was unsuccessful.");
+    }
   } catch (error) {
     console.error("Copy failed:", error);
-    button.textContent = "Failed";
-    button.classList.remove("is-copied");
-    button.classList.add("is-failed");
+    feedback.textContent = "Copy failed";
+    feedback.classList.add("is-failed");
+    line?.classList.remove("is-copied");
   }
 
-  setTimeout(() => {
-    button.textContent = "Copy";
-    button.classList.remove("is-copied", "is-failed");
-  }, 1500);
+  feedback.classList.add("is-visible");
+  clearTimeout(copyFeedbackTimers.get(feedback));
+
+  copyFeedbackTimers.set(
+    feedback,
+    setTimeout(() => {
+      feedback.classList.remove("is-visible", "is-failed");
+      line?.classList.remove("is-copied");
+    }, 1500)
+  );
 }
 
 function formatTimestamp(iso) {
@@ -73,6 +103,7 @@ async function readError(response, fallback) {
 }
 
 function showListMessage(container, text, isError = false) {
+  lastRenderedMessagesKey = null;
   const message = document.createElement("div");
 
   message.className = isError ? "empty-state is-error" : "empty-state";
@@ -102,6 +133,16 @@ function renderMessages(messages) {
     count.textContent = label;
   }
 
+  const renderKey = JSON.stringify([
+    searchQuery,
+    Boolean(adminPassword),
+    messages,
+  ]);
+
+  if (renderKey === lastRenderedMessagesKey) {
+    return;
+  }
+
   container.replaceChildren();
 
   if (messages.length === 0) {
@@ -109,6 +150,7 @@ function renderMessages(messages) {
       container,
       searchQuery ? "No messages match this search." : "No messages yet."
     );
+    lastRenderedMessagesKey = renderKey;
     return;
   }
 
@@ -121,7 +163,19 @@ function renderMessages(messages) {
     const content = document.createElement("div");
 
     content.className = "message-content";
-    content.textContent = message.content;
+
+    message.content.split(/\r\n|\n|\r/).forEach((text, index) => {
+      const line = document.createElement("button");
+
+      line.type = "button";
+      line.className = "message-line";
+      line.textContent = text;
+      line.dataset.copyLine = "";
+      line.setAttribute("aria-label", `Copy message line ${index + 1}`);
+      content.appendChild(line);
+    });
+
+    card.dataset.copyText = message.content;
 
     // Received time
     const meta = document.createElement("div");
@@ -141,14 +195,6 @@ function renderMessages(messages) {
 
     actions.className = "message-actions";
 
-    const copy = document.createElement("button");
-
-    copy.type = "button";
-    copy.className = "copy-btn";
-    copy.textContent = "Copy";
-
-    actions.appendChild(copy);
-
     if (adminPassword) {
       const remove = document.createElement("button");
 
@@ -160,9 +206,23 @@ function renderMessages(messages) {
       actions.appendChild(remove);
     }
 
-    card.append(content, meta, actions);
+    const feedback = document.createElement("span");
+
+    feedback.className = "message-copy-feedback";
+    feedback.setAttribute("role", "status");
+    feedback.setAttribute("aria-live", "polite");
+
+    card.append(content, meta);
+
+    if (adminPassword) {
+      card.appendChild(actions);
+    }
+
+    card.appendChild(feedback);
     container.appendChild(card);
   });
+
+  lastRenderedMessagesKey = renderKey;
 }
 
 async function loadMessages() {
@@ -337,23 +397,26 @@ document.addEventListener("click", (event) => {
     return;
   }
 
-  const button = event.target.closest(".copy-btn");
+  const line = event.target.closest("[data-copy-line]");
 
-  if (button) {
-    const message =
-      button.dataset.copyText ??
-      button.closest(".message-card")?.querySelector(".message-content")
-        ?.textContent;
+  if (line) {
+    const card = line.closest(".message-card");
 
-    if (message !== undefined && message !== null) {
-      handleCopy(button, message);
+    if (card) {
+      handleCopy(card, line.textContent ?? "", line);
     }
+    return;
+  }
+
+  const card = event.target.closest(".message-card");
+
+  if (card) {
+    handleCopy(card, card.dataset.copyText ?? "");
   }
 });
 
 const messageInput = document.getElementById("message-input");
 const characterCount = document.getElementById("character-count");
-const form = document.getElementById("message-form");
 const searchInput = document.getElementById("message-search");
 
 if (searchInput) {
@@ -397,14 +460,4 @@ if (document.getElementById("messages")) {
 
   // Refresh messages every 2 seconds
   setInterval(loadMessages, 2000);
-}
-
-// Enter to submit
-if (messageInput && form) {
-  messageInput.addEventListener("keypress", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      form.requestSubmit();
-    }
-  });
 }
