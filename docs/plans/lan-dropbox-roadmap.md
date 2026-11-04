@@ -69,7 +69,7 @@ These are product areas, not a final route structure or UI specification.
 
 The order below is a suggested progression. Individual phases may be adjusted after each stage is reviewed.
 
-**Status (2026-11-04):** Phases 1–3 are complete. Phases 4–8 have not started.
+**Status (2026-11-04):** Phases 1–4 are complete. Phases 5–8 have not started.
 
 ### Phase 1 — Establish a reliable sharing foundation
 
@@ -93,9 +93,9 @@ Improve the message archive and its everyday use. This includes useful organizat
 
 Introduce a dedicated file-sharing experience. Users should be able to upload, browse, and download files. File storage should remain on the host PC; the application should manage file information and the relationship between stored files and their displayed entries.
 
-The administrator must be able to configure the allowed file types, maximum individual upload size, and overall storage limit. Uploaded files should remain available until manually deleted. The exact defaults and configuration experience belong in a later feature plan.
+Uploaded files should remain available until manually deleted. Phase 4 establishes fixed initial defaults; configuring the allowed file types, maximum individual upload size, and overall storage limit belongs in Phase 6.
 
-**Status: not started.** Selected as the next phase; see the note below.
+**Status: complete.** Files can be uploaded, browsed, and downloaded from a dedicated page. File contents are stored locally under `~/.lan-dropbox/uploads`, with metadata in SQLite. Uploads are restricted to the agreed extension allowlist, limited to 100 MB per file and 2 GB total storage, and rejected with a clear error if a limit would be exceeded. The existing administrator password protects file deletion on the server. Limits remain fixed until the administrator dashboard phase.
 
 ### Phase 5 — Add shared access and administrator controls
 
@@ -115,7 +115,7 @@ Review the application as a service used by a small number of devices on a share
 
 Once the core sharing and administration features are reliable, consider improvements such as a QR code for opening the service on another device, clearer connection information, live updates, and better status or error feedback.
 
-**Next phase in focus: Phase 4 — Add file sharing.** File sharing is the largest unmet part of the product purpose, it builds directly on the existing Flask and SQLite foundation, and its first slice does not depend on the access controls introduced in Phase 5. Administrator-configured file rules and limits are deferred until the administrator areas exist; the initial slice will use fixed defaults agreed in a separate feature plan.
+**Next phase in focus: Phase 5 — Add shared access and administrator controls.** File sharing is in place with fixed initial rules. The next phase adds the shared PIN gate and a separate administrator authentication mechanism; both must be enforced server-side.
 
 ## 6. Data and storage direction
 
@@ -148,13 +148,12 @@ The main product choices above have been made. A few implementation-level or ope
 
 1. **Shared PIN management:** How will the shared PIN be configured, changed, and communicated to users?
 2. **PIN sessions:** How long should a user remain authorized before being asked for the PIN again?
-3. **File allowlist:** Which file extensions or categories should be enabled by default?
-4. **Upload and storage defaults:** What initial individual upload-size and total storage limits should be used?
-5. **Storage-limit behavior:** What should users see when an upload would exceed the configured limit?
-6. **Administrator credential handling:** Which configuration method should be preferred, and how should the administrator change or recover the credential?
-7. **Backups:** What simple backup and restore approach is appropriate for the local database and uploaded files?
+3. **Administrator credential handling:** Which configuration method should be preferred, and how should the administrator change or recover the credential?
+4. **Backups:** What simple backup and restore approach is appropriate for the local database and uploaded files?
 
-These are not reasons to expand this roadmap into a detailed design. They should be resolved in the focused plans for the relevant features.
+The initial file-sharing defaults are set for Phase 4: `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.pdf`, `.docx`, `.xlsx`, `.pptx`, `.txt`, `.md`, `.csv`, and `.zip`; a 100 MB per-file limit; a 2 GB total storage limit; and rejection of uploads that exceed either limit.
+
+The remaining decisions should be resolved in the focused plans for the relevant features. They are not reasons to expand this roadmap into a detailed design.
 
 ## 9. How to use this roadmap
 

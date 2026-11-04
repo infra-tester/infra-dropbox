@@ -2,6 +2,7 @@ let adminPassword = "";
 let searchQuery = "";
 let searchTimer = null;
 let lastRenderedMessagesKey = null;
+let lastRenderedFilesKey = null;
 
 async function copyText(text) {
   // Use the modern Clipboard API when available in a secure context.
@@ -314,6 +315,7 @@ async function unlockAdmin() {
     applyAdminState();
     setAdminStatus("Unlocked until you reload the page.", "ok");
     loadMessages();
+    loadFiles();
   } catch (error) {
     console.error("Unlock failed:", error);
     setAdminStatus("Could not reach the server.", "error");
@@ -385,8 +387,234 @@ async function clearMessages() {
   }
 }
 
+/* Files */
+
+function formatBytes(bytes) {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  const units = ["KB", "MB", "GB"];
+  let value = bytes / 1024;
+  let unit = 0;
+
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit += 1;
+  }
+
+  return `${value.toFixed(1)} ${units[unit]}`;
+}
+
+function setFileStatus(text, tone = "") {
+  const status = document.getElementById("file-status");
+
+  if (!status) {
+    return;
+  }
+
+  status.textContent = text;
+  status.classList.toggle("is-error", tone === "error");
+  status.classList.toggle("is-ok", tone === "ok");
+}
+
+function renderFiles(data) {
+  const container = document.getElementById("files");
+  const count = document.getElementById("file-count");
+  const storage = document.getElementById("file-storage");
+
+  if (!container || !count || !storage) {
+    return;
+  }
+
+  count.textContent = `${data.files.length} ${
+    data.files.length === 1 ? "file" : "files"
+  }`;
+  storage.textContent = `${formatBytes(data.used_bytes)} / ${formatBytes(
+    data.max_bytes
+  )} used`;
+
+  const renderKey = JSON.stringify([Boolean(adminPassword), data.files]);
+
+  if (renderKey === lastRenderedFilesKey) {
+    return;
+  }
+
+  container.replaceChildren();
+
+  if (data.files.length === 0) {
+    const empty = document.createElement("div");
+
+    empty.className = "empty-state";
+    empty.textContent = "No files shared yet.";
+    container.appendChild(empty);
+    lastRenderedFilesKey = renderKey;
+    return;
+  }
+
+  data.files.forEach((file) => {
+    const card = document.createElement("article");
+    const details = document.createElement("div");
+    const link = document.createElement("a");
+    const meta = document.createElement("span");
+    const actions = document.createElement("div");
+
+    card.className = "file-card";
+    details.className = "file-details";
+    link.className = "file-name";
+    link.href = `/api/files/${file.id}/download`;
+    link.textContent = file.filename;
+    meta.className = "file-meta";
+    meta.textContent = `${formatBytes(file.size)} · ${formatTimestamp(
+      file.created_at
+    )}`;
+    actions.className = "file-actions";
+
+    const download = document.createElement("a");
+
+    download.className = "copy-btn";
+    download.href = link.href;
+    download.textContent = "Download";
+    actions.appendChild(download);
+
+    if (adminPassword) {
+      const remove = document.createElement("button");
+
+      remove.type = "button";
+      remove.className = "copy-btn danger";
+      remove.textContent = "Delete";
+      remove.dataset.deleteFileId = file.id;
+      actions.appendChild(remove);
+    }
+
+    details.append(link, meta);
+    card.append(details, actions);
+    container.appendChild(card);
+  });
+
+  lastRenderedFilesKey = renderKey;
+}
+
+async function loadFiles() {
+  const container = document.getElementById("files");
+  const storage = document.getElementById("file-storage");
+
+  if (!container || !storage) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/files");
+
+    if (!response.ok) {
+      throw new Error(await readError(response, "Could not retrieve files."));
+    }
+
+    renderFiles(await response.json());
+  } catch (error) {
+    console.error("File list error:", error);
+    lastRenderedFilesKey = null;
+    container.replaceChildren();
+    const message = document.createElement("div");
+
+    message.className = "empty-state is-error";
+    message.textContent = "Could not load files. Retrying...";
+    container.appendChild(message);
+    storage.textContent = "offline";
+  }
+}
+
+async function uploadFile(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const input = document.getElementById("file-input");
+  const button = document.getElementById("file-upload-button");
+
+  if (
+    !(form instanceof HTMLFormElement) ||
+    !(input instanceof HTMLInputElement)
+  ) {
+    return;
+  }
+
+  if (!input.files || input.files.length === 0) {
+    setFileStatus("Choose a file to upload.", "error");
+    return;
+  }
+
+  const formData = new FormData(form);
+
+  if (button) {
+    button.disabled = true;
+  }
+  setFileStatus("Uploading...");
+
+  try {
+    const response = await fetch("/api/files", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(await readError(response, "Could not upload this file."));
+    }
+
+    const result = await response.json();
+
+    form.reset();
+    setFileStatus(`${result.file.filename} uploaded.`, "ok");
+    loadFiles();
+  } catch (error) {
+    console.error("Upload failed:", error);
+    setFileStatus(error.message || "Could not reach the server.", "error");
+  } finally {
+    if (button) {
+      button.disabled = false;
+    }
+  }
+}
+
+async function deleteFile(id) {
+  if (!adminPassword) {
+    return;
+  }
+
+  if (!window.confirm("Delete this file? This cannot be undone.")) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/files/${id}/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: adminPassword }),
+    });
+
+    if (!response.ok) {
+      setAdminStatus(
+        await readError(response, "Could not delete the file."),
+        "error"
+      );
+      return;
+    }
+
+    setAdminStatus("File deleted.", "ok");
+    loadFiles();
+  } catch (error) {
+    console.error("File deletion failed:", error);
+    setAdminStatus("Could not reach the server.", "error");
+  }
+}
+
 document.addEventListener("click", (event) => {
   if (!(event.target instanceof Element)) {
+    return;
+  }
+
+  const deleteFileButton = event.target.closest("[data-delete-file-id]");
+
+  if (deleteFileButton) {
+    deleteFile(deleteFileButton.dataset.deleteFileId);
     return;
   }
 
@@ -460,4 +688,12 @@ if (document.getElementById("messages")) {
 
   // Refresh messages every 2 seconds
   setInterval(loadMessages, 2000);
+}
+
+const fileUploadForm = document.getElementById("file-upload-form");
+
+if (fileUploadForm) {
+  fileUploadForm.addEventListener("submit", uploadFile);
+  loadFiles();
+  setInterval(loadFiles, 5000);
 }

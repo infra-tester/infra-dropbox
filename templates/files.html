@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Infra Dropbox &middot; Files</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+
+  <body>
+    <main class="container">
+      <header class="site-header">
+        <a href="/" class="brand">Infra Dropbox</a>
+
+        <nav class="navigation" aria-label="Main navigation">
+          <a href="/" class="nav-link">Home</a>
+          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/files" class="nav-link" aria-current="page">Files</a>
+        </nav>
+      </header>
+
+      <section class="section">
+        <div class="section-heading">
+          <h1>Files</h1>
+          <span class="file-storage" id="file-storage" aria-live="polite"
+            >Loading storage...</span
+          >
+        </div>
+
+        <form class="file-upload-form" id="file-upload-form">
+          <label class="field-label" for="file-input">Upload a file</label>
+          <input
+            id="file-input"
+            name="file"
+            type="file"
+            accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.docx,.xlsx,.pptx,.txt,.md,.csv,.zip"
+            required
+          />
+          <div class="form-footer">
+            <span class="file-rules"
+              >Up to 100 MB. Images, documents, text files, and ZIP archives.</span
+            >
+            <button type="submit" class="btn" id="file-upload-button">
+              Upload
+            </button>
+          </div>
+          <p class="file-status" id="file-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="file-list-heading">
+          <h2>Shared files</h2>
+          <span class="message-count" id="file-count" aria-live="polite"
+            >0 files</span
+          >
+        </div>
+        <div id="files" class="files">
+          <div class="empty-state">Loading...</div>
+        </div>
+
+        <details class="admin-panel">
+          <summary class="admin-summary">Administrator actions</summary>
+
+          <div class="admin-body">
+            <div class="admin-row" id="admin-unlock">
+              <label class="field-label" for="admin-password">Password</label>
+              <input
+                id="admin-password"
+                class="search-input"
+                type="password"
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="btn btn-ghost"
+                id="admin-unlock-btn"
+              >
+                Unlock
+              </button>
+            </div>
+
+            <p class="admin-status" id="admin-status" role="status"></p>
+          </div>
+        </details>
+      </section>
+
+      <footer class="footer">Local network only</footer>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  </body>
+</html>
