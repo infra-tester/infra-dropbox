@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>LAN Dropbox | Messages</title>
+    <title>Infra Dropbox &middot; Messages</title>
 
     <link
       rel="stylesheet"
@@ -15,50 +15,73 @@
   <body>
     <main class="container">
       <header class="site-header">
-        <div class="header-top">
-          <div class="brand">
-            <span class="logo-mark" aria-hidden="true"></span>
-            <div class="brand-copy">
-              <div class="logo">LAN DROPBOX</div>
-              <div class="subtitle">LOCAL NETWORK / MESSAGE RELAY</div>
-            </div>
-          </div>
+        <a href="/" class="brand">Infra Dropbox</a>
 
-          <div class="header-controls">
-            <nav class="navigation" aria-label="Main navigation">
-              <a href="/" class="nav-link">HOME</a>
-              <a href="/messages" class="nav-link" aria-current="page">MESSAGES</a>
-            </nav>
-            <div class="status">
-              <span class="status-dot" aria-hidden="true"></span>
-              SYSTEM ONLINE
-            </div>
-          </div>
-        </div>
+        <nav class="navigation" aria-label="Main navigation">
+          <a href="/" class="nav-link">Home</a>
+          <a href="/messages" class="nav-link" aria-current="page">Messages</a>
+        </nav>
       </header>
 
       <section class="section">
         <div class="section-heading">
-          <div>
-            <p class="eyebrow">INBOUND CHANNEL</p>
-            <h1>MESSAGE ARCHIVE</h1>
-          </div>
-          <div class="message-count" id="message-count" aria-live="polite">0 RECEIVED</div>
+          <h1>Messages</h1>
+          <span class="message-count" id="message-count" aria-live="polite"
+            >0 messages</span
+          >
+        </div>
+
+        <div class="search-row">
+          <label class="field-label" for="message-search">Search</label>
+          <input
+            id="message-search"
+            class="search-input"
+            type="search"
+            placeholder="Filter messages"
+            autocomplete="off"
+          />
         </div>
 
         <div id="messages" class="messages">
-          <div class="empty-state">
-            <span class="empty-mark" aria-hidden="true">&gt;_</span>
-            <span>LOADING TRANSMISSIONS</span>
-          </div>
+          <div class="empty-state">Loading...</div>
         </div>
+
+        <details class="admin-panel">
+          <summary class="admin-summary">Administrator actions</summary>
+
+          <div class="admin-body">
+            <div class="admin-row" id="admin-unlock">
+              <label class="field-label" for="admin-password">Password</label>
+              <input
+                id="admin-password"
+                class="search-input"
+                type="password"
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="btn btn-ghost"
+                id="admin-unlock-btn"
+              >
+                Unlock
+              </button>
+            </div>
+
+            <p class="admin-status" id="admin-status" role="status"></p>
+
+            <button
+              type="button"
+              class="btn btn-danger"
+              id="admin-clear"
+              hidden
+            >
+              Clear all messages
+            </button>
+          </div>
+        </details>
       </section>
 
-      <footer class="footer">
-        <span>LAN CONNECTION</span>
-        <span class="footer-separator" aria-hidden="true">//</span>
-        <span>LOCAL NETWORK ONLY</span>
-      </footer>
+      <footer class="footer">Local network only</footer>
     </main>
 
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>

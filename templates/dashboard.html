@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>LAN Dropbox | Home</title>
+    <title>Infra Dropbox</title>
 
     <link
       rel="stylesheet"
@@ -15,28 +15,16 @@
   <body>
     <main class="container">
       <header class="site-header">
-        <div class="header-top">
-          <div class="brand">
-            <div class="logo">INFRA DROPBOX</div>
-            <div class="subtitle">SHARE THINGS SEFELY</div>
-          </div>
+        <a href="/" class="brand">Infra Dropbox</a>
 
-          <div class="header-controls">
-            <nav class="navigation" aria-label="Main navigation">
-              <a href="/" class="nav-link" aria-current="page">HOME</a>
-              <a href="/messages" class="nav-link">MESSAGES</a>
-            </nav>
-          </div>
-        </div>
+        <nav class="navigation" aria-label="Main navigation">
+          <a href="/" class="nav-link" aria-current="page">Home</a>
+          <a href="/messages" class="nav-link">Messages</a>
+        </nav>
       </header>
 
-      <section class="section composer-section">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">OUTBOUND CHANNEL</p>
-            <h1>NEW TRANSMISSION</h1>
-          </div>
-        </div>
+      <section class="section">
+        <h1>Send a message</h1>
 
         <form
           action="/send"
@@ -44,11 +32,11 @@
           class="message-form"
           id="message-form"
         >
-          <label class="field-label" for="message-input">MESSAGE CONTENT</label>
+          <label class="field-label" for="message-input">Message</label>
           <textarea
             id="message-input"
             name="message"
-            placeholder="Type a message for your local network..."
+            placeholder="Type a message..."
             required
             rows="3"
             maxlength="200"
@@ -56,65 +44,14 @@
 
           <div class="form-footer">
             <span class="character-count" aria-live="polite">
-              <span id="character-count">200</span> CHARACTERS
+              <span id="character-count">200</span> characters left
             </span>
-            <button type="submit" class="btn">
-              SEND MESSAGE <span aria-hidden="true">→</span>
-            </button>
+            <button type="submit" class="btn">Send</button>
           </div>
         </form>
       </section>
 
-      <section class="section recent-section">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">LATEST ACTIVITY</p>
-            <h2>RECENT TRANSMISSIONS</h2>
-          </div>
-          <a href="/messages" class="archive-link"
-            >VIEW ALL <span aria-hidden="true">→</span></a
-          >
-        </div>
-
-        {% if recent_messages %}
-        <div class="messages">
-          {% for message in recent_messages %}
-          <article class="message-card">
-            <div class="message-content">{{ message['content'] }}</div>
-            <div class="message-meta">
-              <time
-                class="message-time"
-                data-created-at="{{ message['created_at'] }}"
-              ></time>
-            </div>
-            <div class="message-actions">
-              <button
-                type="button"
-                class="copy-btn"
-                data-copy-text="{{ message['content'] }}"
-              >
-                COPY
-              </button>
-            </div>
-          </article>
-          {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-          <span class="empty-mark" aria-hidden="true">&gt;_</span>
-          <span>NO TRANSMISSIONS RECEIVED</span>
-          <span class="empty-detail"
-            >Your recent messages will appear here.</span
-          >
-        </div>
-        {% endif %}
-      </section>
-
-      <footer class="footer">
-        <span>LAN CONNECTION</span>
-        <span class="footer-separator" aria-hidden="true">//</span>
-        <span>LOCAL NETWORK ONLY</span>
-      </footer>
+      <footer class="footer">Local network only</footer>
     </main>
 
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>

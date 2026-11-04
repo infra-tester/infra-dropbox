@@ -69,23 +69,33 @@ These are product areas, not a final route structure or UI specification.
 
 The order below is a suggested progression. Individual phases may be adjusted after each stage is reviewed.
 
+**Status (2026-11-04):** Phases 1–3 are complete. Phases 4–8 have not started.
+
 ### Phase 1 — Establish a reliable sharing foundation
 
 Evolve the current message-sharing prototype into a more dependable feature. Shared items should have enough structure to support display, sorting, and later management. Input validation and consistent handling of submitted content should be part of this foundation.
+
+**Status: complete.** Messages are stored as `id` / `content` / `created_at` records, submissions are trimmed and empty ones rejected, and the feed is ordered newest-first with a character limit and counter.
 
 ### Phase 2 — Keep shared content between restarts
 
 Introduce persistent local storage so messages are not lost when the Flask server stops or restarts. SQLite is the proposed starting point for application data because it fits the scale and local nature of this project.
 
+**Status: complete.** Messages live in SQLite at `~/.lan-dropbox/message.db`, with the schema created on startup, so content survives server restarts.
+
 ### Phase 3 — Complete the message-sharing experience
 
 Improve the message archive and its everyday use. This includes useful organization, search or filtering, clear feedback, and administrator-only deletion or clearing. Messages should remain available until manually deleted; automatic expiry is not part of the current requirement.
+
+**Status: complete.** The archive lists all messages newest-first, shows a live count, copies content with success/failure feedback, refreshes itself, and reports load failures instead of failing silently. Search filters messages on the server, treating `%` and `_` as literal text. Deletion and clearing are enforced on the server against the `ADMIN_PASSWORD` environment variable; the controls appear only after a password is verified, and when no password is configured the server refuses those actions rather than leaving them open. This is deliberately the smallest possible administrator check and does not replace the shared PIN gate, sessions, or the administrator dashboard planned for Phases 5 and 6.
 
 ### Phase 4 — Add file sharing
 
 Introduce a dedicated file-sharing experience. Users should be able to upload, browse, and download files. File storage should remain on the host PC; the application should manage file information and the relationship between stored files and their displayed entries.
 
 The administrator must be able to configure the allowed file types, maximum individual upload size, and overall storage limit. Uploaded files should remain available until manually deleted. The exact defaults and configuration experience belong in a later feature plan.
+
+**Status: not started.** Selected as the next phase; see the note below.
 
 ### Phase 5 — Add shared access and administrator controls
 
@@ -104,6 +114,8 @@ Review the application as a service used by a small number of devices on a share
 ### Phase 8 — Add convenience improvements
 
 Once the core sharing and administration features are reliable, consider improvements such as a QR code for opening the service on another device, clearer connection information, live updates, and better status or error feedback.
+
+**Next phase in focus: Phase 4 — Add file sharing.** File sharing is the largest unmet part of the product purpose, it builds directly on the existing Flask and SQLite foundation, and its first slice does not depend on the access controls introduced in Phase 5. Administrator-configured file rules and limits are deferred until the administrator areas exist; the initial slice will use fixed defaults agreed in a separate feature plan.
 
 ## 6. Data and storage direction
 
