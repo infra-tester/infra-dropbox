@@ -1,0 +1,86 @@
+.admin-panel {
+  margin-top: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.admin-summary {
+  padding: 11px 14px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.admin-summary:hover {
+  color: var(--color-text);
+}
+
+.admin-body {
+  padding: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-row[hidden] {
+  display: none;
+}
+
+.admin-row .field-label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.admin-status {
+  min-height: 1.2em;
+  margin: 10px 0 0;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.admin-status.is-ok {
+  color: var(--color-accent-bright);
+}
+
+.admin-status.is-error {
+  color: var(--color-error);
+}
+
+.admin-body .btn-danger {
+  margin-top: 10px;
+}
+
+@media (max-width: 640px) {
+  .admin-row {
+    flex-wrap: wrap;
+  }
+
+  .admin-row .search-input {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .admin-row .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-body {
+    padding: 12px;
+  }
+
+  .admin-status {
+    overflow-wrap: anywhere;
+  }
+}

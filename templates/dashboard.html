@@ -1,84 +1,73 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% extends "base.html" %}
 
-    <title>Infra Dropbox</title>
+{% block title %}Infra Dropbox{% endblock %}
 
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
-  </head>
+{% block page_styles %}
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/messages.css') }}"
+  />
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/files.css') }}"
+  />
+{% endblock %}
 
-  <body>
-    <main class="container">
-      <header class="site-header">
-        <a href="/" class="brand">Infra Dropbox</a>
+{% block content %}
+  <section class="section">
+    <h1>Send a message</h1>
 
-        <nav class="navigation" aria-label="Main navigation">
-          <a href="/" class="nav-link" aria-current="page">Home</a>
-          <a href="/messages" class="nav-link">Messages</a>
-          <a href="/files" class="nav-link">Files</a>
-        </nav>
-      </header>
+    <form
+      action="/send"
+      method="POST"
+      class="message-form"
+      id="message-form"
+    >
+      <label class="field-label" for="message-input">Message</label>
+      <textarea
+        id="message-input"
+        name="message"
+        placeholder="Type a message..."
+        required
+        rows="3"
+        maxlength="200"
+      ></textarea>
 
-      <section class="section">
-        <h1>Send a message</h1>
+      <div class="form-footer">
+        <span class="character-count" aria-live="polite">
+          <span id="character-count">200</span> characters left
+        </span>
+        <button type="submit" class="btn">Send</button>
+      </div>
+    </form>
+  </section>
 
-        <form
-          action="/send"
-          method="POST"
-          class="message-form"
-          id="message-form"
+  <section class="section">
+    <h1>Upload a file</h1>
+
+    <form class="file-upload-form" id="file-upload-form">
+      <label class="field-label" for="file-input">Choose a file</label>
+      <input
+        id="file-input"
+        name="file"
+        type="file"
+        accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.docx,.xlsx,.pptx,.txt,.md,.csv,.zip"
+        required
+      />
+      <div class="form-footer">
+        <span class="file-rules"
+          >Up to 100 MB. Images, documents, text files, and ZIP archives.</span
         >
-          <label class="field-label" for="message-input">Message</label>
-          <textarea
-            id="message-input"
-            name="message"
-            placeholder="Type a message..."
-            required
-            rows="3"
-            maxlength="200"
-          ></textarea>
+        <button type="submit" class="btn" id="file-upload-button">
+          Upload
+        </button>
+      </div>
+      <p class="file-status" id="file-status" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+{% endblock %}
 
-          <div class="form-footer">
-            <span class="character-count" aria-live="polite">
-              <span id="character-count">200</span> characters left
-            </span>
-            <button type="submit" class="btn">Send</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="section">
-        <h1>Upload a file</h1>
-
-        <form class="file-upload-form" id="file-upload-form">
-          <label class="field-label" for="file-input">Choose a file</label>
-          <input
-            id="file-input"
-            name="file"
-            type="file"
-            accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.docx,.xlsx,.pptx,.txt,.md,.csv,.zip"
-            required
-          />
-          <div class="form-footer">
-            <span class="file-rules"
-              >Up to 100 MB. Images, documents, text files, and ZIP archives.</span
-            >
-            <button type="submit" class="btn" id="file-upload-button">
-              Upload
-            </button>
-          </div>
-          <p class="file-status" id="file-status" role="status" aria-live="polite"></p>
-        </form>
-      </section>
-
-      <footer class="footer">Local network only</footer>
-    </main>
-
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-  </body>
-</html>
+{% block page_scripts %}
+  <script src="{{ url_for('static', filename='js/messages.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/files.js') }}"></script>
+{% endblock %}

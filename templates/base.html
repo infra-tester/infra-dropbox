@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{% block title %}Infra Dropbox{% endblock %}</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/base.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/admin.css') }}"
+    />
+    {% block page_styles %}{% endblock %}
+  </head>
+
+  <body>
+    <main class="container">
+      <header class="site-header">
+        <a href="/" class="brand">Infra Dropbox</a>
+
+        <nav class="navigation" aria-label="Main navigation">
+          <a
+            href="/"
+            class="nav-link"
+            {% if request.path == "/" %}aria-current="page"{% endif %}
+            >Home</a
+          >
+          <a
+            href="/messages"
+            class="nav-link"
+            {% if request.path == "/messages" %}aria-current="page"{% endif %}
+            >Messages</a
+          >
+          <a
+            href="/files"
+            class="nav-link"
+            {% if request.path == "/files" %}aria-current="page"{% endif %}
+            >Files</a
+          >
+        </nav>
+      </header>
+
+      {% block content %}{% endblock %}
+
+      <footer class="footer">Local network only</footer>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    {% block page_scripts %}{% endblock %}
+  </body>
+</html>

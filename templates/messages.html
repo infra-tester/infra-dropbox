@@ -1,90 +1,43 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% extends "base.html" %}
 
-    <title>Infra Dropbox &middot; Messages</title>
+{% block title %}Infra Dropbox &middot; Messages{% endblock %}
 
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
-  </head>
+{% block page_styles %}
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/messages.css') }}"
+  />
+{% endblock %}
 
-  <body>
-    <main class="container">
-      <header class="site-header">
-        <a href="/" class="brand">Infra Dropbox</a>
+{% block content %}
+  <section class="section">
+    <div class="section-heading">
+      <h1>Messages</h1>
+      <span class="message-count" id="message-count" aria-live="polite"
+        >0 messages</span
+      >
+    </div>
 
-        <nav class="navigation" aria-label="Main navigation">
-          <a href="/" class="nav-link">Home</a>
-          <a href="/messages" class="nav-link" aria-current="page">Messages</a>
-          <a href="/files" class="nav-link">Files</a>
-        </nav>
-      </header>
+    <div class="search-row">
+      <label class="field-label" for="message-search">Search</label>
+      <input
+        id="message-search"
+        class="search-input"
+        type="search"
+        placeholder="Filter messages"
+        autocomplete="off"
+      />
+    </div>
 
-      <section class="section">
-        <div class="section-heading">
-          <h1>Messages</h1>
-          <span class="message-count" id="message-count" aria-live="polite"
-            >0 messages</span
-          >
-        </div>
+    <div id="messages" class="messages">
+      <div class="empty-state">Loading...</div>
+    </div>
 
-        <div class="search-row">
-          <label class="field-label" for="message-search">Search</label>
-          <input
-            id="message-search"
-            class="search-input"
-            type="search"
-            placeholder="Filter messages"
-            autocomplete="off"
-          />
-        </div>
+    {% set allow_clear = true %}
+    {% include "_admin_panel.html" %}
+  </section>
+{% endblock %}
 
-        <div id="messages" class="messages">
-          <div class="empty-state">Loading...</div>
-        </div>
-
-        <details class="admin-panel">
-          <summary class="admin-summary">Administrator actions</summary>
-
-          <div class="admin-body">
-            <div class="admin-row" id="admin-unlock">
-              <label class="field-label" for="admin-password">Password</label>
-              <input
-                id="admin-password"
-                class="search-input"
-                type="password"
-                autocomplete="current-password"
-              />
-              <button
-                type="button"
-                class="btn btn-ghost"
-                id="admin-unlock-btn"
-              >
-                Unlock
-              </button>
-            </div>
-
-            <p class="admin-status" id="admin-status" role="status"></p>
-
-            <button
-              type="button"
-              class="btn btn-danger"
-              id="admin-clear"
-              hidden
-            >
-              Clear all messages
-            </button>
-          </div>
-        </details>
-      </section>
-
-      <footer class="footer">Local network only</footer>
-    </main>
-
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-  </body>
-</html>
+{% block page_scripts %}
+  <script src="{{ url_for('static', filename='js/messages.js') }}"></script>
+{% endblock %}

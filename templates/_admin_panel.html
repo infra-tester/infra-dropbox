@@ -1,0 +1,26 @@
+<details class="admin-panel">
+  <summary class="admin-summary">Administrator actions</summary>
+
+  <div class="admin-body">
+    <div class="admin-row" id="admin-unlock">
+      <label class="field-label" for="admin-password">Password</label>
+      <input
+        id="admin-password"
+        class="search-input"
+        type="password"
+        autocomplete="current-password"
+      />
+      <button type="button" class="btn btn-ghost" id="admin-unlock-btn">
+        Unlock
+      </button>
+    </div>
+
+    <p class="admin-status" id="admin-status" role="status"></p>
+
+    {% if allow_clear %}
+    <button type="button" class="btn btn-danger" id="admin-clear" hidden>
+      Clear all messages
+    </button>
+    {% endif %}
+  </div>
+</details>
