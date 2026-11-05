@@ -3,38 +3,26 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import app as app_module
+from app import create_app
 
 
 class FileSharingTests(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         root = Path(self.temp_dir.name)
-        self.original_config = {
-            key: app_module.app.config[key]
-            for key in (
-                "DATABASE_PATH",
-                "UPLOAD_DIR",
-                "MAX_FILE_SIZE",
-                "MAX_STORAGE_SIZE",
-            )
-        }
-        self.original_password = app_module.ADMIN_PASSWORD
-        app_module.app.config.update(
-            DATABASE_PATH=root / "messages.db",
-            UPLOAD_DIR=root / "uploads",
-            MAX_FILE_SIZE=8,
-            MAX_STORAGE_SIZE=10,
+        self.application = create_app(
+            {
+                "TESTING": True,
+                "DATABASE_PATH": root / "messages.db",
+                "UPLOAD_DIR": root / "uploads",
+                "MAX_FILE_SIZE": 8,
+                "MAX_STORAGE_SIZE": 10,
+                "ADMIN_PASSWORD": "test-admin",
+            }
         )
-        app_module.ADMIN_PASSWORD = "test-admin"
-        app_module.app.config["TESTING"] = True
-        app_module.init_db()
-        self.client = app_module.app.test_client()
+        self.client = self.application.test_client()
 
     def tearDown(self):
-        app_module.app.config.update(self.original_config)
-        app_module.app.config["TESTING"] = False
-        app_module.ADMIN_PASSWORD = self.original_password
         self.temp_dir.cleanup()
 
     def upload(self, content=b"data", filename="sample.txt"):

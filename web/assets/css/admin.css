@@ -1,16 +1,17 @@
 .admin-panel {
   margin-top: 24px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border: 2px solid var(--color-border);
   background: var(--color-surface);
+  box-shadow: var(--shadow-hard);
 }
 
 .admin-summary {
   padding: 11px 14px;
   color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
   text-transform: uppercase;
   cursor: pointer;
 }
@@ -21,7 +22,7 @@
 
 .admin-body {
   padding: 14px;
-  border-top: 1px solid var(--color-border);
+  border-top: 2px solid var(--color-border);
 }
 
 .admin-row {
@@ -43,9 +44,9 @@
   min-height: 1.2em;
   margin: 10px 0 0;
   color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
+  font-family: var(--font-terminal);
+  font-size: 17px;
+  letter-spacing: 0.04em;
 }
 
 .admin-status.is-ok {

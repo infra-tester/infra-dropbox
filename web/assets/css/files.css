@@ -2,17 +2,17 @@
 .file-rules,
 .file-meta {
   color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
+  font-family: var(--font-terminal);
+  font-size: 16px;
+  letter-spacing: 0.06em;
 }
 
 /* Upload form */
 .file-upload-form {
   padding: 18px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border: 2px solid var(--color-border);
   background: var(--color-surface);
+  box-shadow: var(--shadow-hard);
 }
 
 .file-upload-form input[type="file"] {
@@ -21,31 +21,32 @@
   min-width: 0;
   max-width: 100%;
   padding: 10px;
-  border: 1px solid var(--color-border-strong);
-  background: #0c0a08;
+  border: 2px solid var(--color-border-strong);
+  background: var(--color-input-bg);
   color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-terminal);
+  font-size: 16px;
 }
 
 .file-upload-form input[type="file"]::file-selector-button {
   min-height: 34px;
   margin: -4px 10px -4px -4px;
   padding: 6px 10px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 2px;
-  background: var(--color-surface-raised);
-  color: var(--color-accent-bright);
-  font: 10px var(--font-mono);
+  border: 2px solid #000;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .file-upload-form input[type="file"]::file-selector-button:hover {
-  border-color: var(--color-accent);
+  background: var(--color-accent-bright);
 }
 
 .file-upload-form input[type="file"]:focus-visible {
-  outline: 1px solid var(--color-accent-bright);
+  outline: 2px solid var(--color-accent-bright);
   outline-offset: 2px;
 }
 
@@ -61,8 +62,8 @@
   min-height: 1.2em;
   margin: 10px 0 0;
   color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-terminal);
+  font-size: 17px;
 }
 
 .file-status.is-error {
@@ -98,10 +99,10 @@
   justify-content: space-between;
   gap: 16px;
   padding: 13px 16px;
-  border: 1px solid var(--color-border);
-  border-left: 2px solid #68502a;
-  border-radius: var(--radius);
+  border: 2px solid var(--color-border);
+  border-left: 4px solid var(--color-accent-deep);
   background: var(--color-surface);
+  box-shadow: var(--shadow-hard-sm);
 }
 
 .file-card:hover {
@@ -116,6 +117,7 @@
   display: block;
   overflow-wrap: anywhere;
   color: var(--color-text);
+  font-size: 19px;
   text-decoration: none;
 }
 
@@ -167,13 +169,13 @@
   .file-upload-form input[type="file"] {
     min-height: 44px;
     padding: 8px;
-    font-size: 10px;
+    font-size: 14px;
   }
 
   .file-upload-form input[type="file"]::file-selector-button {
     margin-right: 6px;
     padding-inline: 7px;
-    font-size: 9px;
+    font-size: 8px;
   }
 }
 
@@ -183,7 +185,7 @@
   }
 
   .file-list-heading h2 {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .file-storage {
@@ -208,12 +210,12 @@
 
   .file-actions .copy-btn {
     padding-inline: 6px;
-    font-size: 9px;
-    letter-spacing: 0.06em;
+    font-size: 8px;
+    letter-spacing: 0.02em;
   }
 
   .file-storage {
-    font-size: 9px;
-    letter-spacing: 0.06em;
+    font-size: 15px;
+    letter-spacing: 0.04em;
   }
 }

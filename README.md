@@ -17,10 +17,28 @@ InfraDropbox is a lightweight Flask app for sharing short messages and uploading
 3. Start the app:
 
 ```bash
-python app.py
+python run.py
 ```
 
 The app runs on `http://localhost:5000` by default.
+
+## Project structure
+
+```
+app/                 Flask application package
+  __init__.py        create_app() factory, error handlers, blueprints
+  config.py          paths, upload limits, admin password
+  db.py              SQLite connection, schema, queries
+  security.py        admin authorization helpers
+  routes/            blueprints: pages, messages, files, admin
+web/                 Everything the browser loads
+  templates/         Jinja pages (partials/ for shared fragments)
+  assets/            css/, js/, fonts/ served at /assets
+server.py            Waitress server + shutdown middleware
+run.py               Entry point (python run.py)
+tests/               unittest suite (python -m unittest discover -s tests)
+docs/                Design notes and roadmaps
+```
 
 ## Admin password
 
@@ -28,7 +46,7 @@ To enable administrator deletion actions, set an environment variable before sta
 
 ```bash
 set ADMIN_PASSWORD=your-secret-password
-python app.py
+python run.py
 ```
 
 On Linux/macOS, use `export ADMIN_PASSWORD=your-secret-password` instead.
