@@ -13,6 +13,30 @@ SHUTDOWN_PATH = "/__idb_shutdown"
 SHUTDOWN_TOKEN_HEADER = "HTTP_X_IDB_SHUTDOWN_TOKEN"
 
 
+def _acquire_instance_lock(path):
+    lock_file = path.open("a+b")
+    try:
+        if os.name == "nt":
+            import msvcrt
+
+            lock_file.seek(0, os.SEEK_END)
+            if lock_file.tell() == 0:
+                lock_file.write(b"\0")
+                lock_file.flush()
+            lock_file.seek(0)
+            msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError as error:
+        lock_file.close()
+        raise RuntimeError(
+            f"Could not acquire the Infra Dropbox instance lock at {path}: {error}"
+        ) from error
+    return lock_file
+
+
 class ShutdownMiddleware:
     def __init__(self, application, token, shutdown):
         self.application = application
@@ -59,6 +83,7 @@ def run(application):
 
     state_dir = Path(local_app_data) / "InfraDropbox"
     state_dir.mkdir(parents=True, exist_ok=True)
+    instance_lock = _acquire_instance_lock(state_dir / "server.lock")
     token_path = state_dir / "shutdown.token"
     token = secrets.token_urlsafe(32)
 
@@ -85,3 +110,4 @@ def run(application):
                 token_path.unlink()
         except FileNotFoundError:
             pass
+        instance_lock.close()

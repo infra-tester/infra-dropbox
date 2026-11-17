@@ -1,10 +1,14 @@
+import subprocess
+import sys
+import tempfile
 import threading
 import unittest
+from pathlib import Path
 
 from werkzeug.test import Client
 from werkzeug.wrappers import Response
 
-from server import HOST, PORT, ShutdownMiddleware
+from server import HOST, PORT, ShutdownMiddleware, _acquire_instance_lock
 
 
 class ShutdownMiddlewareTests(unittest.TestCase):
@@ -68,6 +72,28 @@ class ShutdownMiddlewareTests(unittest.TestCase):
     def test_runtime_binds_for_lan_access(self):
         self.assertEqual(HOST, "0.0.0.0")
         self.assertEqual(PORT, 5000)
+
+    def test_instance_lock_prevents_a_second_server_process(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            lock_path = Path(temp_dir) / "server.lock"
+            lock_file = _acquire_instance_lock(lock_path)
+            try:
+                code = (
+                    "from pathlib import Path; "
+                    "from server import _acquire_instance_lock; "
+                    f"_acquire_instance_lock(Path({str(lock_path)!r}))"
+                )
+                result = subprocess.run(
+                    [sys.executable, "-c", code],
+                    cwd=Path(__file__).resolve().parents[1],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("instance lock", result.stderr)
+            finally:
+                lock_file.close()
 
 
 if __name__ == "__main__":
