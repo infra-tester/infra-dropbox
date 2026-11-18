@@ -5,6 +5,7 @@ InfraDropbox is a lightweight Flask app for sharing short messages and uploading
 ## Features
 
 - Post and browse messages
+- Jio Phone text sharing at `/m`
 - Search stored messages
 - Upload and download shared files
 - Admin-only deletion controls
@@ -21,6 +22,10 @@ python run.py
 ```
 
 The app runs on `http://localhost:5000` by default.
+
+On a Jio Phone or other small mobile browser, open `http://<server-lan-ip>:5000/m`
+for a minimal text-sharing page. Clipboard access depends on browser support;
+the phone's native paste command in the message box is the fallback.
 
 ## Project structure
 

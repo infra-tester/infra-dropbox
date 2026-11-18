@@ -12,9 +12,9 @@ This document describes the product direction and major areas of work. It is a r
 
 - **Local-first:** The server and shared data live on the host PC.
 - **LAN-focused:** Other devices access the service over the local network.
-- **PIN-protected shared access:** Everyone must enter the shared access PIN before using the application.
+- **Open LAN access:** Anyone who can reach the application on the local network can use the shared workspace; there is no shared PIN or regular-user account.
 - **Simple user experience:** Regular users do not need individual accounts or registration.
-- **Shared workspace:** Content is visible to users who have passed the shared access check.
+- **Shared workspace:** Content is visible to users who can reach the service on the local network.
 - **Administrator control:** Deleting shared content and changing service settings are administrator-only actions.
 - **Small-scale concurrent use:** The application should support a small number of people using it at the same time.
 - **Incremental development:** Keep the project understandable and build on the existing Python and Flask application rather than introducing unnecessary complexity.
@@ -23,7 +23,7 @@ This document describes the product direction and major areas of work. It is a r
 
 ### Regular users
 
-Anyone who can reach the service on the LAN must first provide the shared PIN. After passing that check, regular users should be able to:
+Anyone who can reach the service on the LAN can use it without a shared PIN or individual account. Regular users should be able to:
 
 - View shared messages and links.
 - Send new messages and links.
@@ -57,7 +57,7 @@ The project does not currently require an activity-history or audit-log feature.
 
 The application is expected to grow around these areas:
 
-1. **Home / sharing page** — Enter the shared PIN when required, send a message or link, and see recent shared content.
+1. **Home / sharing page** — Send a message or link and see recent shared content.
 2. **Messages** — Browse, search, copy, and otherwise use the shared message history.
 3. **Files** — Browse uploaded files and upload or download content within administrator-configured rules.
 4. **Administrator access** — Enter the administrator credentials to access protected controls.
@@ -69,7 +69,7 @@ These are product areas, not a final route structure or UI specification.
 
 The order below is a suggested progression. Individual phases may be adjusted after each stage is reviewed.
 
-**Status (2026-11-04):** Phases 1–4 are complete. Phases 5–8 have not started.
+**Status (2026-11-17):** Phases 1–4 are complete. The small-phone text-sharing page is implemented as a separate `/m` experience. Administrator management and the remaining reliability and convenience work are still pending.
 
 ### Phase 1 — Establish a reliable sharing foundation
 
@@ -87,7 +87,7 @@ Introduce persistent local storage so messages are not lost when the Flask serve
 
 Improve the message archive and its everyday use. This includes useful organization, search or filtering, clear feedback, and administrator-only deletion or clearing. Messages should remain available until manually deleted; automatic expiry is not part of the current requirement.
 
-**Status: complete.** The archive lists all messages newest-first, shows a live count, copies content with success/failure feedback, refreshes itself, and reports load failures instead of failing silently. Search filters messages on the server, treating `%` and `_` as literal text. Deletion and clearing are enforced on the server against the `ADMIN_PASSWORD` environment variable; the controls appear only after a password is verified, and when no password is configured the server refuses those actions rather than leaving them open. This is deliberately the smallest possible administrator check and does not replace the shared PIN gate, sessions, or the administrator dashboard planned for Phases 5 and 6.
+**Status: complete.** The archive lists all messages newest-first, shows a live count, copies content with success/failure feedback, refreshes itself, and reports load failures instead of failing silently. Search filters messages on the server, treating `%` and `_` as literal text. Deletion and clearing are enforced on the server against the `ADMIN_PASSWORD` environment variable; the controls appear only after a password is verified, and when no password is configured the server refuses those actions rather than leaving them open. This is the current administrator protection; the full management dashboard remains future work.
 
 ### Phase 4 — Add file sharing
 
@@ -97,11 +97,11 @@ Uploaded files should remain available until manually deleted. Phase 4 establish
 
 **Status: complete.** Files can be uploaded, browsed, and downloaded from a dedicated page. File contents are stored locally under `~/.lan-dropbox/uploads`, with metadata in SQLite. Uploads are restricted to the agreed extension allowlist, limited to 100 MB per file and 2 GB total storage, and rejected with a clear error if a limit would be exceeded. The existing administrator password protects file deletion on the server. Limits remain fixed until the administrator dashboard phase.
 
-### Phase 5 — Add shared access and administrator controls
+### Phase 5 — Complete administrator access and controls
 
-Introduce the shared PIN gate for regular users and a separate administrator authentication mechanism. The shared PIN is required for everyone using the application; administrator credentials grant access to additional management controls. The administrator password is supplied through server-side configuration.
+The application is intentionally open to anyone who can reach it on the LAN; there is no shared PIN or regular-user login. Continue to protect administrator-only actions on the server with the administrator password supplied through server-side configuration. Consolidate the existing password verification into a clear administrator access experience as needed.
 
-Both access mechanisms must be enforced by the server. Their exact setup, session behavior, and recovery process should be planned separately.
+Administrator authorization must be enforced by the server. Credential setup, session behavior, and recovery should be planned separately. Open LAN access means anyone on that network can read and add shared content; the service is not intended for public-internet exposure.
 
 ### Phase 6 — Build the administrator management experience
 
@@ -115,7 +115,9 @@ Review the application as a service used by a small number of devices on a share
 
 Once the core sharing and administration features are reliable, consider improvements such as a QR code for opening the service on another device, clearer connection information, live updates, and better status or error feedback.
 
-**Next phase in focus: Phase 5 — Add shared access and administrator controls.** File sharing is in place with fixed initial rules. The next phase adds the shared PIN gate and a separate administrator authentication mechanism; both must be enforced server-side.
+**Next phase in focus: Phase 5 — Complete administrator access and controls.** File sharing is in place with fixed initial rules, and the shared PIN has been dropped from the product direction. The next phase focuses on administrator access and management, which must be enforced server-side.
+
+The implemented `/m` page is a dedicated small-phone text-sharing experience; the standard pages remain the full experience for desktop and regular smartphones.
 
 ## 6. Data and storage direction
 
@@ -123,7 +125,7 @@ The proposed direction is to keep application data and uploaded file contents lo
 
 - **Messages and file records:** Store structured information in a local database, with SQLite as the initial preference.
 - **Uploaded files:** Store file contents in a dedicated location on the host PC; keep their descriptive information and references in the database.
-- **Application settings:** Keep the shared PIN, administrator credential configuration, and service settings on the host, with appropriate protection for sensitive values.
+- **Application settings:** Keep administrator credential configuration and service settings on the host, with appropriate protection for sensitive values.
 - **Retention:** Shared messages and files remain until manually deleted by the administrator.
 - **Storage management:** The administrator can configure an overall storage limit and an individual upload-size limit.
 
@@ -146,10 +148,8 @@ These are high-level direction choices. The database schema, folder layout, back
 
 The main product choices above have been made. A few implementation-level or operational choices remain open and should be decided when the relevant feature is planned:
 
-1. **Shared PIN management:** How will the shared PIN be configured, changed, and communicated to users?
-2. **PIN sessions:** How long should a user remain authorized before being asked for the PIN again?
-3. **Administrator credential handling:** Which configuration method should be preferred, and how should the administrator change or recover the credential?
-4. **Backups:** What simple backup and restore approach is appropriate for the local database and uploaded files?
+1. **Administrator credential handling:** Which configuration method should be preferred, and how should the administrator change or recover the credential?
+2. **Backups:** What simple backup and restore approach is appropriate for the local database and uploaded files?
 
 The initial file-sharing defaults are set for Phase 4: `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.pdf`, `.docx`, `.xlsx`, `.pptx`, `.txt`, `.md`, `.csv`, and `.zip`; a 100 MB per-file limit; a 2 GB total storage limit; and rejection of uploads that exceed either limit.
 
