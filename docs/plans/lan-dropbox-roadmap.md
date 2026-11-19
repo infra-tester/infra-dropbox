@@ -69,7 +69,7 @@ These are product areas, not a final route structure or UI specification.
 
 The order below is a suggested progression. Individual phases may be adjusted after each stage is reviewed.
 
-**Status (2026-11-17):** Phases 1–4 are complete. The small-phone text-sharing page is implemented as a separate `/m` experience. Administrator management and the remaining reliability and convenience work are still pending.
+**Status (2026-11-17):** Phases 1–4 are complete. Administrator management and the remaining reliability and convenience work are still pending.
 
 ### Phase 1 — Establish a reliable sharing foundation
 
@@ -116,8 +116,6 @@ Review the application as a service used by a small number of devices on a share
 Once the core sharing and administration features are reliable, consider improvements such as a QR code for opening the service on another device, clearer connection information, live updates, and better status or error feedback.
 
 **Next phase in focus: Phase 5 — Complete administrator access and controls.** File sharing is in place with fixed initial rules, and the shared PIN has been dropped from the product direction. The next phase focuses on administrator access and management, which must be enforced server-side.
-
-The implemented `/m` page is a dedicated small-phone text-sharing experience; the standard pages remain the full experience for desktop and regular smartphones.
 
 ## 6. Data and storage direction
 
