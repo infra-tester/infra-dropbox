@@ -169,18 +169,18 @@ async function deleteFile(id) {
       if (response.status === 401) {
         IDB.admin.sync();
       }
-      IDB.admin.status(
+      setFileStatus(
         await IDB.readError(response, "Could not delete the file."),
         "error"
       );
       return;
     }
 
-    IDB.admin.status("File deleted.", "ok");
+    setFileStatus("File deleted.", "ok");
     loadFiles();
   } catch (error) {
     console.error("File deletion failed:", error);
-    IDB.admin.status("Could not reach the server.", "error");
+    setFileStatus("Could not reach the server.", "error");
   }
 }
 

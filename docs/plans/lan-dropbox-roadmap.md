@@ -69,7 +69,7 @@ These are product areas, not a final route structure or UI specification.
 
 The order below is a suggested progression. Individual phases may be adjusted after each stage is reviewed.
 
-**Status (2026-11-19):** Phases 1–5 are complete. The administrator management dashboard and the remaining reliability and convenience work are still pending.
+**Status (2026-11-19):** Phases 1–6 are complete. The remaining reliability and convenience work is still pending.
 
 ### Phase 1 — Establish a reliable sharing foundation
 
@@ -109,6 +109,8 @@ Administrator authorization must be enforced by the server. Credential setup, se
 
 Add the protected dashboard for managing messages, files, storage limits, allowed file types, and relevant server settings. Deletion and clearing operations must remain administrator-only. An activity-history feature is not currently required.
 
+**Status: complete.** A dedicated `/admin` page gates its dashboard behind the administrator session (it renders only a sign-in screen otherwise). The dashboard shows an overview (message/file counts, storage usage), editable settings — per-file limit, total storage limit, and the allowed extension list — persisted in a new SQLite `setting` table seeded from config defaults and synced into app config so changes apply immediately, plus a danger zone with clear-all-messages and clear-all-files (both `require_admin`). The per-page administrator panels on Messages and Files were removed: those pages now show only per-item Delete buttons when the session is signed in (state refreshed on page load and window focus), while bulk deletion lives exclusively on the dashboard. Upload limits and error messages read from the live settings instead of hardcoded values.
+
 ### Phase 7 — Improve LAN safety and operational reliability
 
 Review the application as a service used by a small number of devices on a shared network. Address upload and download safety, input validation, access protection, session handling, request limits, configuration and secret handling, and safe deployment settings. Development-only behavior such as Flask debug mode must not be enabled during normal use.
@@ -117,7 +119,7 @@ Review the application as a service used by a small number of devices on a share
 
 Once the core sharing and administration features are reliable, consider improvements such as a QR code for opening the service on another device, clearer connection information, live updates, and better status or error feedback.
 
-**Next phase in focus: Phase 6 — Build the administrator management experience.** Administrator access is consolidated into a server-enforced session sign-in, and the shared PIN has been dropped from the product direction. The next phase builds the protected dashboard for managing content, storage limits, and file rules.
+**Next phase in focus: Phase 7 — Improve LAN safety and operational reliability.** The administrator dashboard is in place with configurable limits and file rules. The next phase hardens the service: access protection, session and secret handling, request limits, credential management and recovery, and safe deployment defaults.
 
 ## 6. Data and storage direction
 
@@ -151,7 +153,7 @@ The main product choices above have been made. A few implementation-level or ope
 1. **Administrator credential handling:** Which configuration method should be preferred, and how should the administrator change or recover the credential?
 2. **Backups:** What simple backup and restore approach is appropriate for the local database and uploaded files?
 
-The initial file-sharing defaults are set for Phase 4: `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.pdf`, `.docx`, `.xlsx`, `.pptx`, `.txt`, `.md`, `.csv`, and `.zip`; a 100 MB per-file limit; a 2 GB total storage limit; and rejection of uploads that exceed either limit.
+The initial file-sharing defaults are set for Phase 4: `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.pdf`, `.docx`, `.xlsx`, `.pptx`, `.txt`, `.md`, `.csv`, and `.zip`; a 100 MB per-file limit; a 2 GB total storage limit; and rejection of uploads that exceed either limit. Since Phase 6 these are starting defaults only — the administrator can change the limits and the extension allowlist from the dashboard.
 
 The remaining decisions should be resolved in the focused plans for the relevant features. They are not reasons to expand this roadmap into a detailed design.
 

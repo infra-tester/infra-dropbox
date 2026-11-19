@@ -30,12 +30,12 @@
         placeholder="Type a message..."
         required
         rows="3"
-        maxlength="200"
+        maxlength="1000"
       ></textarea>
 
       <div class="form-footer">
         <span class="character-count" aria-live="polite">
-          <span id="character-count">200</span> characters left
+          <span id="character-count">1000</span> characters left
         </span>
         <button type="submit" class="btn">Send</button>
       </div>
@@ -55,8 +55,8 @@
       />
       <div class="form-footer">
         <span class="file-rules"
-          >Up to 100 MB per file. Images, documents, media, text, and
-          archives.</span
+          >Up to {{ max_file_limit }} per file. Images, documents, media, text,
+          and archives.</span
         >
         <button type="submit" class="btn" id="file-upload-button">
           Upload

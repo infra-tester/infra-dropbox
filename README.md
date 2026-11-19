@@ -7,7 +7,7 @@ InfraDropbox is a lightweight Flask app for sharing short messages and uploading
 - Post and browse messages
 - Search stored messages
 - Upload and download shared files
-- Admin-only deletion controls
+- Admin dashboard for storage limits, file rules, and bulk cleanup
 - Local app storage for message and file data
 
 ## Run locally
@@ -51,12 +51,14 @@ python run.py
 
 On Linux/macOS, use `export ADMIN_PASSWORD=your-secret-password` instead.
 
-In the web interface, open "Administrator actions" on the Messages or Files
-page and enter the password once to unlock. The sign-in is held in a browser
-session cookie, so it survives page reloads but ends when the browser closes
-(or when the server restarts). Use the Lock button to end it earlier. When no
-password is configured, the administrator panel is hidden and the server
-refuses all admin actions.
+In the web interface, open the **Admin** page and enter the password to sign
+in. The sign-in is held in a browser session cookie, so it survives page
+reloads but ends when the browser closes (or when the server restarts); use
+the Lock button to end it earlier. While signed in, per-item Delete buttons
+appear on the Messages and Files pages, and the dashboard exposes storage
+limits, the allowed file-type list, and the bulk "clear all" actions. When no
+password is configured, the Admin page explains that access is unavailable
+and the server refuses all admin actions.
 
 ## Supported file types
 
@@ -64,7 +66,10 @@ In addition to common images and PDF/Office/text files, uploads support
 HEIC/HEIF/AVIF/BMP/TIFF images; MP3/WAV/OGG/M4A/AAC/FLAC audio;
 MP4/MOV/MKV/WEBM/AVI/3GP video; legacy Office and OpenDocument files; JSON,
 XML, YAML, logs; and ZIP/7Z/RAR/TAR/GZ archives. Files are shared as downloads,
-not displayed as inline previews. Limits remain 100 MB per file and 2 GB total.
+not displayed as inline previews. The per-file limit (default 100 MB), total
+storage limit (default 2 GB), and the allowed extension list are defaults —
+the administrator can change all three from the Admin dashboard, and changes
+apply immediately.
 
 ## SMS webhook
 

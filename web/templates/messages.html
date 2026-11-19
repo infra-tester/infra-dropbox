@@ -29,12 +29,11 @@
       />
     </div>
 
+    <p class="admin-status" id="message-status" role="status"></p>
+
     <div id="messages" class="messages">
       <div class="empty-state">Loading...</div>
     </div>
-
-    {% set allow_clear = true %}
-    {% include "partials/_admin_panel.html" %}
   </section>
 {% endblock %}
 

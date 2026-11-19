@@ -1,13 +1,18 @@
-from flask import Blueprint, redirect, render_template, request
+from flask import Blueprint, current_app, redirect, render_template, request, session
 
+from app.config import format_size
 from app.db import insert_message
+from app.security import configured_admin_password
 
 pages_bp = Blueprint("pages", __name__)
 
 
 @pages_bp.route("/")
 def home():
-    return render_template("dashboard.html")
+    return render_template(
+        "dashboard.html",
+        max_file_limit=format_size(current_app.config["MAX_FILE_SIZE"]),
+    )
 
 
 @pages_bp.route("/send", methods=["POST"])
@@ -27,3 +32,12 @@ def messages_page():
 @pages_bp.route("/files")
 def files_page():
     return render_template("files.html")
+
+
+@pages_bp.route("/admin")
+def admin_page():
+    configured = bool(configured_admin_password())
+    signed_in = configured and bool(session.get("admin"))
+    return render_template(
+        "admin.html", configured=configured, signed_in=signed_in
+    )

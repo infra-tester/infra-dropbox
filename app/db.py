@@ -43,6 +43,11 @@ def init_db(application):
             size INTEGER NOT NULL,
             created_at TEXT NOT NULL)"""
             )
+            conn.execute("""
+            CREATE TABLE IF NOT EXISTS setting(
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL)"""
+            )
 
 
 def insert_message(content: str) -> None:

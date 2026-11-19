@@ -16,7 +16,7 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 
-from app.config import ALLOWED_EXTENSIONS
+from app.config import format_size
 from app.db import (
     db_connection,
     database_path,
@@ -53,12 +53,15 @@ def upload_file():
 
     raw_filename = uploaded.filename.replace("\\", "/").rsplit("/", 1)[-1]
     extension = Path(raw_filename).suffix.casefold()
-    if extension not in ALLOWED_EXTENSIONS:
+    if extension not in current_app.config["ALLOWED_EXTENSIONS"]:
         return jsonify({"error": "This file type is not allowed."}), 415
 
     filename = secure_filename(raw_filename)
     if not filename:
         return jsonify({"error": "The filename is not valid."}), 400
+
+    max_file_size = current_app.config["MAX_FILE_SIZE"]
+    max_storage_size = current_app.config["MAX_STORAGE_SIZE"]
 
     directory = upload_directory()
     directory.mkdir(parents=True, exist_ok=True)
@@ -73,9 +76,12 @@ def upload_file():
             size = 0
             while chunk := uploaded.stream.read(1024 * 1024):
                 size += len(chunk)
-                if size > current_app.config["MAX_FILE_SIZE"]:
+                if size > max_file_size:
                     return jsonify({
-                        "error": "The file exceeds the 100 MB per-file limit."
+                        "error": (
+                            "The file exceeds the "
+                            f"{format_size(max_file_size)} per-file limit."
+                        )
                     }), 413
                 temp_file.write(chunk)
 
@@ -86,9 +92,12 @@ def upload_file():
         with db_connection(timeout=30) as conn:
             conn.execute("BEGIN IMMEDIATE")
             used_bytes = storage_usage(conn)
-            if used_bytes + size > current_app.config["MAX_STORAGE_SIZE"]:
+            if used_bytes + size > max_storage_size:
                 return jsonify({
-                    "error": "This upload would exceed the 2 GB shared storage limit."
+                    "error": (
+                        "This upload would exceed the "
+                        f"{format_size(max_storage_size)} shared storage limit."
+                    )
                 }), 413
 
             os.replace(temp_path, stored_path)
@@ -178,3 +187,24 @@ def delete_file(file_id):
         return jsonify({"error": "The file could not be deleted. Please try again."}), 500
     finally:
         conn.close()
+
+
+@files_bp.route("/api/files/clear", methods=["POST"])
+@require_admin
+def clear_files():
+    directory = upload_directory()
+
+    with db_connection() as conn:
+        rows = conn.execute("SELECT stored_name FROM shared_file").fetchall()
+        conn.execute("DELETE FROM shared_file")
+
+    for (stored_name,) in rows:
+        if Path(stored_name).name != stored_name:
+            logging.error("Refusing to remove an invalid stored file reference.")
+            continue
+        try:
+            (directory / stored_name).unlink(missing_ok=True)
+        except OSError:
+            logging.exception("Could not remove %s during clear", stored_name)
+
+    return "", 204

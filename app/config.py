@@ -23,6 +23,16 @@ ALLOWED_EXTENSIONS = {
 }
 
 
+def format_size(size: int) -> str:
+    if size >= 1024**3:
+        return f"{size / 1024**3:g} GB"
+    if size >= 1024**2:
+        return f"{size / 1024**2:g} MB"
+    if size >= 1024:
+        return f"{size / 1024:g} KB"
+    return f"{size} B"
+
+
 def default_config():
     return {
         "DATABASE_PATH": DB_PATH,
@@ -30,6 +40,7 @@ def default_config():
         "MAX_FILE_SIZE": MAX_FILE_SIZE,
         "MAX_STORAGE_SIZE": MAX_STORAGE_SIZE,
         "MAX_CONTENT_LENGTH": MAX_FILE_SIZE + 1024 * 1024,
+        "ALLOWED_EXTENSIONS": ALLOWED_EXTENSIONS,
         # Set ADMIN_PASSWORD in the environment to enable administrator
         # actions. When it is empty, deletion stays disabled instead of
         # falling open.

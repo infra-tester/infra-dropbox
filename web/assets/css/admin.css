@@ -1,43 +1,4 @@
-.admin-panel {
-  margin-top: 24px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-}
-
-.admin-summary {
-  padding: 10px 14px;
-  border-radius: var(--radius);
-  color: var(--color-text-muted);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.admin-summary:hover {
-  color: var(--color-text);
-}
-
-.admin-body {
-  padding: 14px;
-  border-top: 1px solid var(--color-border);
-}
-
-.admin-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.admin-row[hidden] {
-  display: none;
-}
-
-.admin-row .field-label {
-  margin: 0;
-  white-space: nowrap;
-}
-
+/* Shared status line (also used by the messages page). */
 .admin-status {
   min-height: 1.2em;
   margin: 10px 0 0;
@@ -53,31 +14,114 @@
   color: var(--color-error);
 }
 
-.admin-body .btn-danger {
-  margin-top: 10px;
+.admin-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+/* Sign-in view */
+.admin-signin {
+  max-width: 420px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.admin-signin .admin-status {
+  margin-bottom: 0;
+}
+
+/* Overview stats */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.admin-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.admin-stat-label {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-stat-value {
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Settings */
+.admin-settings-form {
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.admin-settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.admin-settings-field {
+  margin-top: 14px;
+}
+
+.admin-extensions-input {
+  min-height: 84px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.admin-settings-form .admin-hint {
+  margin-top: 6px;
+}
+
+.admin-settings-form .form-footer {
+  align-items: center;
+}
+
+.admin-settings-form .admin-status {
+  margin: 0;
+}
+
+/* Danger zone */
+.admin-danger-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.admin-danger .admin-hint,
+.section > .admin-hint {
+  margin-bottom: 12px;
 }
 
 @media (max-width: 640px) {
-  .admin-row {
-    flex-wrap: wrap;
+  .admin-stats {
+    grid-template-columns: 1fr;
   }
 
-  .admin-row .search-input {
-    flex: 1 1 100%;
-    min-width: 0;
+  .admin-settings-grid {
+    grid-template-columns: 1fr;
   }
 
-  .admin-row .btn {
+  .admin-danger-actions .btn {
     width: 100%;
-  }
-}
-
-@media (max-width: 380px) {
-  .admin-body {
-    padding: 12px;
-  }
-
-  .admin-status {
-    overflow-wrap: anywhere;
   }
 }

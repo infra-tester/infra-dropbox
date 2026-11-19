@@ -5,7 +5,10 @@ let lastRenderedMessagesKey = null;
 const messageInput = document.getElementById("message-input");
 const characterCount = document.getElementById("character-count");
 const searchInput = document.getElementById("message-search");
-const clearButton = document.getElementById("admin-clear");
+
+function setMessageStatus(text, tone = "") {
+  IDB.setStatus(document.getElementById("message-status"), text, tone);
+}
 
 function messagesEndpoint() {
   return searchQuery
@@ -245,48 +248,18 @@ async function deleteMessage(id) {
       if (response.status === 401) {
         IDB.admin.sync();
       }
-      IDB.admin.status(await IDB.readError(response, "Could not delete."), "error");
-      return;
-    }
-
-    IDB.admin.status("Message deleted.", "ok");
-    loadMessages();
-  } catch (error) {
-    console.error("Delete failed:", error);
-    IDB.admin.status("Could not reach the server.", "error");
-  }
-}
-
-async function clearMessages() {
-  if (!IDB.admin.isUnlocked()) {
-    return;
-  }
-
-  if (!window.confirm("Delete every message? This cannot be undone.")) {
-    return;
-  }
-
-  try {
-    const response = await fetch("/api/messages/clear", {
-      method: "POST",
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        IDB.admin.sync();
-      }
-      IDB.admin.status(
-        await IDB.readError(response, "Could not clear messages."),
+      setMessageStatus(
+        await IDB.readError(response, "Could not delete."),
         "error"
       );
       return;
     }
 
-    IDB.admin.status("All messages deleted.", "ok");
+    setMessageStatus("Message deleted.", "ok");
     loadMessages();
   } catch (error) {
-    console.error("Clear failed:", error);
-    IDB.admin.status("Could not reach the server.", "error");
+    console.error("Delete failed:", error);
+    setMessageStatus("Could not reach the server.", "error");
   }
 }
 
@@ -300,13 +273,9 @@ if (searchInput) {
   });
 }
 
-if (clearButton) {
-  clearButton.addEventListener("click", clearMessages);
-}
-
 if (messageInput && characterCount) {
   const updateCharacterCount = () => {
-    characterCount.textContent = 200 - messageInput.value.length;
+    characterCount.textContent = 1000 - messageInput.value.length;
   };
 
   messageInput.addEventListener("input", updateCharacterCount);
