@@ -33,7 +33,7 @@ app/                 Flask application package
   routes/            blueprints: pages, messages, files, admin
 web/                 Everything the browser loads
   templates/         Jinja pages (partials/ for shared fragments)
-  assets/            css/, js/, fonts/ served at /assets
+  assets/            css/ and js/ served at /assets
 server.py            Waitress server + shutdown middleware
 run.py               Entry point (python run.py)
 tests/               unittest suite (python -m unittest discover -s tests)
