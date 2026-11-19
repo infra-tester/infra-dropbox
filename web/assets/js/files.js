@@ -163,11 +163,12 @@ async function deleteFile(id) {
   try {
     const response = await fetch(`/api/files/${id}/delete`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: IDB.admin.password() }),
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        IDB.admin.sync();
+      }
       IDB.admin.status(
         await IDB.readError(response, "Could not delete the file."),
         "error"

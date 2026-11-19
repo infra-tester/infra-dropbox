@@ -17,6 +17,12 @@
 
     <p class="admin-status" id="admin-status" role="status"></p>
 
+    <div class="admin-row" id="admin-session" hidden>
+      <button type="button" class="btn btn-ghost" id="admin-lock">
+        Lock
+      </button>
+    </div>
+
     {% if allow_clear %}
     <button type="button" class="btn btn-danger" id="admin-clear" hidden>
       Clear all messages

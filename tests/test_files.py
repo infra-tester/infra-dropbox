@@ -60,6 +60,12 @@ class FileSharingTests(unittest.TestCase):
         files = self.client.get("/api/files").get_json()["files"]
         self.assertEqual(files[0]["size"], 0)
 
+    def test_accepts_additional_image_audio_and_video_formats(self):
+        for extension in (".heic", ".mp3", ".mp4"):
+            with self.subTest(extension=extension):
+                response = self.upload(b"x", f"sample{extension}")
+                self.assertEqual(response.status_code, 201)
+
     def test_rejects_disallowed_and_oversized_files(self):
         self.assertEqual(self.upload(filename="script.exe").status_code, 415)
         self.assertEqual(self.upload(b"123456789").status_code, 413)
@@ -86,22 +92,16 @@ class FileSharingTests(unittest.TestCase):
             self.assertIn("attachment", response.headers["Content-Disposition"])
             self.assertIn("notes.txt", response.headers["Content-Disposition"])
 
-    def test_delete_requires_admin_password_and_removes_file(self):
+    def test_delete_requires_admin_sign_in_and_removes_file(self):
         self.upload(b"hello", "notes.txt")
         file_id = self.client.get("/api/files").get_json()["files"][0]["id"]
         endpoint = f"/api/files/{file_id}/delete"
 
-        self.assertEqual(self.client.post(endpoint, json={}).status_code, 401)
-        self.assertEqual(self.client.post(endpoint, json=[]).status_code, 401)
-        self.assertEqual(
-            self.client.post(endpoint, json={"password": []}).status_code, 401
-        )
-        self.assertEqual(
-            self.client.post(endpoint, json={"password": "wrong"}).status_code, 401
-        )
-        response = self.client.post(endpoint, json={"password": "test-admin"})
-
+        self.assertEqual(self.client.post(endpoint).status_code, 401)
+        response = self.client.post("/api/admin/login", json={"password": "test-admin"})
         self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(self.client.post(endpoint).status_code, 204)
         listed = self.client.get("/api/files").get_json()
         self.assertEqual(listed["files"], [])
         self.assertEqual(listed["used_bytes"], 0)

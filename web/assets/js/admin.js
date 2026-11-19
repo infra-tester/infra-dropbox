@@ -1,21 +1,53 @@
 (() => {
+  const panel = document.querySelector(".admin-panel");
   const unlockRow = document.getElementById("admin-unlock");
   const unlockButton = document.getElementById("admin-unlock-btn");
   const passwordInput = document.getElementById("admin-password");
   const statusElement = document.getElementById("admin-status");
+  const sessionRow = document.getElementById("admin-session");
+  const lockButton = document.getElementById("admin-lock");
   const clearButton = document.getElementById("admin-clear");
 
-  const state = { password: "" };
+  const state = { configured: false, unlocked: false };
 
   function applyState() {
-    const unlocked = Boolean(state.password);
+    if (panel) {
+      panel.hidden = !state.configured;
+    }
 
     if (unlockRow) {
-      unlockRow.hidden = unlocked;
+      unlockRow.hidden = !state.configured || state.unlocked;
+    }
+
+    if (sessionRow) {
+      sessionRow.hidden = !state.unlocked;
     }
 
     if (clearButton) {
-      clearButton.hidden = !unlocked;
+      clearButton.hidden = !state.unlocked;
+    }
+  }
+
+  async function sync() {
+    try {
+      const response = await fetch("/api/admin/status");
+
+      if (!response.ok) {
+        return;
+      }
+
+      const data = await response.json();
+      const wasUnlocked = state.unlocked;
+
+      state.configured = Boolean(data.configured);
+      state.unlocked = Boolean(data.unlocked);
+      applyState();
+
+      if (wasUnlocked !== state.unlocked) {
+        IDB.refreshAll();
+      }
+    } catch (error) {
+      console.error("Admin status check failed:", error);
     }
   }
 
@@ -36,7 +68,7 @@
     }
 
     try {
-      const response = await fetch("/api/admin/verify", {
+      const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
@@ -51,10 +83,10 @@
         return;
       }
 
-      state.password = password;
+      state.unlocked = true;
       passwordInput.value = "";
       applyState();
-      IDB.setStatus(statusElement, "Unlocked until you reload the page.", "ok");
+      IDB.setStatus(statusElement, "Unlocked.", "ok");
       IDB.refreshAll();
     } catch (error) {
       console.error("Unlock failed:", error);
@@ -66,10 +98,23 @@
     }
   }
 
+  async function lock() {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Lock failed:", error);
+    }
+
+    state.unlocked = false;
+    applyState();
+    IDB.setStatus(statusElement, "Locked.", "ok");
+    IDB.refreshAll();
+  }
+
   IDB.admin = {
-    isUnlocked: () => Boolean(state.password),
-    password: () => state.password,
+    isUnlocked: () => state.unlocked,
     status: (text, tone) => IDB.setStatus(statusElement, text, tone),
+    sync,
   };
 
   if (unlockButton) {
@@ -85,5 +130,10 @@
     });
   }
 
+  if (lockButton) {
+    lockButton.addEventListener("click", lock);
+  }
+
   applyState();
+  sync();
 })();

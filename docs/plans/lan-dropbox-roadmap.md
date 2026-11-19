@@ -69,7 +69,7 @@ These are product areas, not a final route structure or UI specification.
 
 The order below is a suggested progression. Individual phases may be adjusted after each stage is reviewed.
 
-**Status (2026-11-17):** Phases 1–4 are complete. Administrator management and the remaining reliability and convenience work are still pending.
+**Status (2026-11-19):** Phases 1–5 are complete. The administrator management dashboard and the remaining reliability and convenience work are still pending.
 
 ### Phase 1 — Establish a reliable sharing foundation
 
@@ -103,6 +103,8 @@ The application is intentionally open to anyone who can reach it on the LAN; the
 
 Administrator authorization must be enforced by the server. Credential setup, session behavior, and recovery should be planned separately. Open LAN access means anyone on that network can read and add shared content; the service is not intended for public-internet exposure.
 
+**Status: complete.** The scattered per-request password checks were replaced by a single server-side sign-in: `POST /api/admin/login` verifies the password once and sets a browser-session cookie, with `/api/admin/logout` and `/api/admin/status` alongside it. A shared `require_admin` decorator enforces the session on message deletion, message clearing, and file deletion, returning `503` when no password is configured and `401` otherwise. The client unlocks once through the administrator panel, keeps the unlocked state across page reloads while the browser stays open, can Lock explicitly, and hides the panel entirely when the server has no password configured. The old password-in-request-body API was removed. Credential recovery and rate limiting remain Phase 7 topics.
+
 ### Phase 6 — Build the administrator management experience
 
 Add the protected dashboard for managing messages, files, storage limits, allowed file types, and relevant server settings. Deletion and clearing operations must remain administrator-only. An activity-history feature is not currently required.
@@ -115,7 +117,7 @@ Review the application as a service used by a small number of devices on a share
 
 Once the core sharing and administration features are reliable, consider improvements such as a QR code for opening the service on another device, clearer connection information, live updates, and better status or error feedback.
 
-**Next phase in focus: Phase 5 — Complete administrator access and controls.** File sharing is in place with fixed initial rules, and the shared PIN has been dropped from the product direction. The next phase focuses on administrator access and management, which must be enforced server-side.
+**Next phase in focus: Phase 6 — Build the administrator management experience.** Administrator access is consolidated into a server-enforced session sign-in, and the shared PIN has been dropped from the product direction. The next phase builds the protected dashboard for managing content, storage limits, and file rules.
 
 ## 6. Data and storage direction
 

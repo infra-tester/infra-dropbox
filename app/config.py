@@ -12,8 +12,14 @@ UPLOAD_DIR = DATA_DIR / "uploads"
 MAX_FILE_SIZE = 100 * 1024 * 1024
 MAX_STORAGE_SIZE = 2 * 1024 * 1024 * 1024
 ALLOWED_EXTENSIONS = {
-    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf", ".docx", ".xlsx",
-    ".pptx", ".txt", ".md", ".csv", ".zip",
+    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tif", ".tiff",
+    ".heic", ".heif", ".avif",
+    ".mp3", ".wav", ".ogg", ".m4a", ".aac", ".flac",
+    ".mp4", ".mov", ".mkv", ".webm", ".avi", ".3gp",
+    ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
+    ".odt", ".ods", ".odp", ".rtf",
+    ".txt", ".md", ".csv", ".json", ".xml", ".yaml", ".yml", ".log",
+    ".zip", ".7z", ".rar", ".tar", ".gz",
 }
 
 
@@ -28,4 +34,7 @@ def default_config():
         # actions. When it is empty, deletion stays disabled instead of
         # falling open.
         "ADMIN_PASSWORD": os.environ.get("ADMIN_PASSWORD", ""),
+        # Set SMS_WEBHOOK_SECRET in the environment to enable authenticated
+        # SMS forwarding. When empty, the integration stays unavailable.
+        "SMS_WEBHOOK_SECRET": os.environ.get("SMS_WEBHOOK_SECRET", ""),
     }

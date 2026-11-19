@@ -1,3 +1,5 @@
+import secrets
+
 from flask import Flask, jsonify
 
 from app.config import TEMPLATES_DIR, ASSETS_DIR, default_config
@@ -18,6 +20,10 @@ def create_app(config_overrides=None):
     application.config.update(default_config())
     if config_overrides:
         application.config.update(config_overrides)
+
+    # Signs administrator session cookies. Generated per process so sessions
+    # end when the server restarts; nothing sensitive is written to disk.
+    application.secret_key = application.config.get("SECRET_KEY") or secrets.token_hex(32)
 
     application.register_blueprint(pages_bp)
     application.register_blueprint(messages_bp)

@@ -19,11 +19,12 @@ from werkzeug.utils import secure_filename
 from app.config import ALLOWED_EXTENSIONS
 from app.db import (
     db_connection,
+    database_path,
     file_metadata,
     storage_usage,
     upload_directory,
 )
-from app.security import admin_denied, admin_authorized, request_json_object
+from app.security import require_admin
 
 files_bp = Blueprint("files_api", __name__)
 
@@ -139,17 +140,12 @@ def download_file(file_id):
 
 
 @files_bp.route("/api/files/<int:file_id>/delete", methods=["POST"])
+@require_admin
 def delete_file(file_id):
-    data = request_json_object()
-    if not admin_authorized(data.get("password")):
-        return admin_denied()
-
     directory = upload_directory()
     quarantined_path = None
     stored_path = None
-    conn = sqlite3.connect(
-        Path(current_app.config["DATABASE_PATH"]), timeout=30
-    )
+    conn = sqlite3.connect(database_path(), timeout=30)
     try:
         conn.execute("BEGIN IMMEDIATE")
         row = conn.execute(

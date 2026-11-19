@@ -239,11 +239,12 @@ async function deleteMessage(id) {
   try {
     const response = await fetch(`/api/messages/${id}/delete`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: IDB.admin.password() }),
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        IDB.admin.sync();
+      }
       IDB.admin.status(await IDB.readError(response, "Could not delete."), "error");
       return;
     }
@@ -268,11 +269,12 @@ async function clearMessages() {
   try {
     const response = await fetch("/api/messages/clear", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: IDB.admin.password() }),
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        IDB.admin.sync();
+      }
       IDB.admin.status(
         await IDB.readError(response, "Could not clear messages."),
         "error"

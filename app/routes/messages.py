@@ -1,7 +1,12 @@
 from flask import Blueprint, jsonify, request
 
-from app.db import db_connection, fetch_message
-from app.security import admin_denied, admin_authorized, request_json_object
+from app.db import db_connection, fetch_message, insert_message
+from app.security import (
+    configured_sms_webhook_secret,
+    request_json_object,
+    require_admin,
+    sms_webhook_authorized,
+)
 
 messages_bp = Blueprint("messages_api", __name__)
 
@@ -12,13 +17,34 @@ def get_messages():
     return jsonify(fetch_message(search=search or None))
 
 
-@messages_bp.route("/api/messages/<int:message_id>/delete", methods=["POST"])
-def delete_message(message_id):
+@messages_bp.route("/api/integrations/sms", methods=["POST"])
+def receive_sms():
+    if not configured_sms_webhook_secret():
+        return jsonify({"error": "SMS integration is not configured."}), 503
+    if not sms_webhook_authorized():
+        return jsonify({"error": "Invalid SMS integration credentials."}), 401
+
     data = request_json_object()
+    sender = data.get("sender")
+    message = data.get("message")
+    if (
+        not isinstance(sender, str)
+        or not sender.strip()
+        or any(ord(character) < 32 or ord(character) == 127 for character in sender)
+        or not isinstance(message, str)
+        or not message.strip()
+    ):
+        return jsonify({
+            "error": "Provide a non-empty sender and message as strings."
+        }), 400
 
-    if not admin_authorized(data.get("password")):
-        return admin_denied()
+    insert_message(f"SMS from {sender.strip()}:\n{message.strip()}")
+    return jsonify({"status": "stored"}), 201
 
+
+@messages_bp.route("/api/messages/<int:message_id>/delete", methods=["POST"])
+@require_admin
+def delete_message(message_id):
     with db_connection() as conn:
         cursor = conn.execute("DELETE FROM message WHERE id = ?", (message_id,))
 
@@ -28,12 +54,8 @@ def delete_message(message_id):
 
 
 @messages_bp.route("/api/messages/clear", methods=["POST"])
+@require_admin
 def clear_messages():
-    data = request_json_object()
-
-    if not admin_authorized(data.get("password")):
-        return admin_denied()
-
     with db_connection() as conn:
         conn.execute("DELETE FROM message")
 
