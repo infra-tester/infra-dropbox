@@ -38,7 +38,7 @@ def receive_sms():
             "error": "Provide a non-empty sender and message as strings."
         }), 400
 
-    insert_message(f"SMS from {sender.strip()}:\n{message.strip()}")
+    insert_message(message, sender=sender)
     return jsonify({"status": "stored"}), 201
 
 

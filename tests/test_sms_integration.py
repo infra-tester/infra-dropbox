@@ -1,3 +1,4 @@
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -24,20 +25,76 @@ class SmsIntegrationTests(unittest.TestCase):
     def tearDown(self):
         self.temp_dir.cleanup()
 
-    def test_authenticated_sms_is_saved_with_sender(self):
+    def test_sms_preserves_sender_and_exact_body(self):
+        body = " Hello "
         response = self.client.post(
             "/api/integrations/sms",
-            json={"sender": "+919XXXXXXXXX", "message": "Forwarded SMS content"},
+            json={"sender": "+919198975335", "message": body},
             headers=self.headers,
         )
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.get_json(), {"status": "stored"})
         messages = self.client.get("/api/messages").get_json()
-        self.assertEqual(
-            messages[0]["content"],
-            "SMS from +919XXXXXXXXX:\nForwarded SMS content",
+        self.assertEqual(messages[0]["sender"], "+919198975335")
+        self.assertEqual(messages[0]["content"], body)
+        self.assertNotIn("SMS from", messages[0]["content"])
+        self.assertNotIn("*/=zN8a1w", messages[0]["content"])
+        self.assertIn("created_at", messages[0])
+
+    def test_sms_body_is_not_sanitized_by_removing_suffix_like_text(self):
+        body = "Hello*/=zN8a1w"
+
+        response = self.client.post(
+            "/api/integrations/sms",
+            json={"sender": "+919198975335", "message": body},
+            headers=self.headers,
         )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(
+            self.client.get("/api/messages").get_json()[0]["content"], body
+        )
+
+    def test_normal_message_submission_and_retrieval_are_unchanged(self):
+        response = self.client.post("/send", data={"message": "  Normal message  "})
+
+        self.assertEqual(response.status_code, 302)
+        message = self.client.get("/api/messages").get_json()[0]
+        self.assertEqual(message["content"], "Normal message")
+        self.assertNotIn("sender", message)
+        self.assertTrue(message["created_at"])
+
+    def test_existing_database_messages_remain_retrievable(self):
+        legacy_path = Path(self.temp_dir.name) / "legacy.db"
+        connection = sqlite3.connect(legacy_path)
+        try:
+            connection.execute(
+                "CREATE TABLE message ("
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "content TEXT NOT NULL, created_at TEXT NOT NULL)"
+            )
+            connection.execute(
+                "INSERT INTO message (content, created_at) VALUES (?, ?)",
+                ("Existing message", "2024-01-02T03:04:05+00:00"),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+
+        legacy_app = create_app(
+            {
+                "TESTING": True,
+                "DATABASE_PATH": legacy_path,
+                "UPLOAD_DIR": Path(self.temp_dir.name) / "legacy-uploads",
+                "ADMIN_PASSWORD": "admin-secret",
+            }
+        )
+        message = legacy_app.test_client().get("/api/messages").get_json()[0]
+
+        self.assertEqual(message["content"], "Existing message")
+        self.assertEqual(message["created_at"], "2024-01-02T03:04:05+00:00")
+        self.assertNotIn("sender", message)
 
     def test_requires_the_dedicated_secret(self):
         for headers in ({}, {"Authorization": "Bearer admin-secret"}):

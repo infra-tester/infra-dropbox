@@ -73,6 +73,13 @@
   white-space: pre-wrap;
 }
 
+.message-sender,
+.message-time {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
 .message-line {
   display: block;
   width: 100%;
@@ -130,12 +137,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 10px;
-}
-
-.message-time {
-  color: var(--color-text-muted);
-  font-size: 13px;
+  margin-bottom: 10px;
 }
 
 .message-actions {

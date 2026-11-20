@@ -33,8 +33,14 @@ def init_db(application):
             CREATE TABLE IF NOT EXISTS message(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             content TEXT NOT NULL,
-            created_at TEXT NOT NULL)"""
+            created_at TEXT NOT NULL,
+            sender TEXT)"""
             )
+            message_columns = {
+                row[1] for row in conn.execute("PRAGMA table_info(message)")
+            }
+            if "sender" not in message_columns:
+                conn.execute("ALTER TABLE message ADD COLUMN sender TEXT")
             conn.execute("""
             CREATE TABLE IF NOT EXISTS shared_file(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,17 +56,17 @@ def init_db(application):
             )
 
 
-def insert_message(content: str) -> None:
+def insert_message(content: str, sender: str | None = None) -> None:
     now = datetime.now(timezone.utc).isoformat()
     with db_connection() as conn:
         conn.execute(
-            "INSERT INTO message (content, created_at) VALUES (?, ?)",
-            (content, now),
+            "INSERT INTO message (content, created_at, sender) VALUES (?, ?, ?)",
+            (content, now, sender),
         )
 
 
 def fetch_message(limit=None, search=None):
-    query = "SELECT * FROM message"
+    query = "SELECT id, content, created_at, sender FROM message"
     params = []
 
     if search:
@@ -81,9 +87,13 @@ def fetch_message(limit=None, search=None):
     with db_connection() as conn:
         rows = conn.execute(query, params).fetchall()
 
-    return [
-        {"id": r[0], "content": r[1], "created_at": r[2]} for r in rows
-    ]
+    messages = []
+    for row in rows:
+        message = {"id": row[0], "content": row[1], "created_at": row[2]}
+        if row[3] is not None:
+            message["sender"] = row[3]
+        messages.append(message)
+    return messages
 
 
 def file_metadata(row):

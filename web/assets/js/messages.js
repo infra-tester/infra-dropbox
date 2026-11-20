@@ -170,6 +170,14 @@ function renderMessages(messages) {
 
     meta.appendChild(time);
 
+    if (message.sender) {
+      const sender = document.createElement("span");
+
+      sender.className = "message-sender";
+      sender.textContent = `Sender: ${message.sender}`;
+      meta.appendChild(sender);
+    }
+
     const actions = document.createElement("div");
 
     actions.className = "message-actions";
@@ -191,7 +199,7 @@ function renderMessages(messages) {
     feedback.setAttribute("role", "status");
     feedback.setAttribute("aria-live", "polite");
 
-    card.append(content, meta);
+    card.append(meta, content);
 
     if (IDB.admin.isUnlocked()) {
       card.appendChild(actions);

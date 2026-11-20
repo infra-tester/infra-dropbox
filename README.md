@@ -99,10 +99,10 @@ Configure SMS to URL Forwarder to POST JSON to
 }
 ```
 
-The sender and message are added to the shared message workspace together.
-Requests are rejected when the secret is unset, missing, or incorrect. No
-environment variables are needed on Android; configure the URL and matching
-Bearer secret in SMS to URL Forwarder.
+The sender is stored separately from the message body and shown as its own
+label in the shared message workspace. Requests are rejected when the secret
+is unset, missing, or incorrect. No environment variables are needed on Android;
+configure the URL and matching Bearer secret in SMS to URL Forwarder.
 
 ## Notes
 
