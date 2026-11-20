@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 
+from app import rate_limit
 from app.db import db_connection, storage_usage
 from app.security import (
     admin_denied,
@@ -18,10 +19,22 @@ def login_admin():
     if not configured_admin_password():
         return admin_denied()
 
+    client_ip = request.remote_addr or "unknown"
+    waiting = rate_limit.locked_for(client_ip)
+    if waiting:
+        response = jsonify({
+            "error": "Too many failed sign-in attempts. Try again later."
+        })
+        response.status_code = 429
+        response.headers["Retry-After"] = str(waiting)
+        return response
+
     data = request_json_object()
     if not admin_authorized(data.get("password")):
+        rate_limit.record_failure(client_ip)
         return admin_denied()
 
+    rate_limit.record_success(client_ip)
     session.clear()
     session["admin"] = True
     return "", 204

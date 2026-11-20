@@ -1,4 +1,12 @@
-from flask import Blueprint, current_app, redirect, render_template, request, session
+from flask import (
+    Blueprint,
+    current_app,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+)
 
 from app.config import format_size
 from app.db import insert_message
@@ -12,6 +20,7 @@ def home():
     return render_template(
         "dashboard.html",
         max_file_limit=format_size(current_app.config["MAX_FILE_SIZE"]),
+        max_message_length=current_app.config["MAX_MESSAGE_LENGTH"],
     )
 
 
@@ -20,7 +29,15 @@ def send_message():
     message = request.form.get("message")
 
     if message and message.strip():
-        insert_message(message.strip())
+        message = message.strip()
+        if len(message) > current_app.config["MAX_MESSAGE_LENGTH"]:
+            return jsonify({
+                "error": (
+                    "The message exceeds the "
+                    f"{current_app.config['MAX_MESSAGE_LENGTH']} character limit."
+                )
+            }), 400
+        insert_message(message)
     return redirect("/")
 
 

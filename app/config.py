@@ -11,6 +11,7 @@ UPLOAD_DIR = DATA_DIR / "uploads"
 
 MAX_FILE_SIZE = 100 * 1024 * 1024
 MAX_STORAGE_SIZE = 2 * 1024 * 1024 * 1024
+MAX_MESSAGE_LENGTH = 1000
 ALLOWED_EXTENSIONS = {
     ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tif", ".tiff",
     ".heic", ".heif", ".avif",
@@ -48,4 +49,12 @@ def default_config():
         # Set SMS_WEBHOOK_SECRET in the environment to enable authenticated
         # SMS forwarding. When empty, the integration stays unavailable.
         "SMS_WEBHOOK_SECRET": os.environ.get("SMS_WEBHOOK_SECRET", ""),
+        "MAX_MESSAGE_LENGTH": MAX_MESSAGE_LENGTH,
+        # Failed administrator sign-ins are tracked per client IP in process
+        # memory. After LOGIN_ATTEMPT_THRESHOLD consecutive failures the IP
+        # waits out an exponentially growing lockout (base doubling per extra
+        # failure, capped at LOGIN_LOCKOUT_MAX_SECONDS).
+        "LOGIN_ATTEMPT_THRESHOLD": 5,
+        "LOGIN_LOCKOUT_BASE_SECONDS": 30,
+        "LOGIN_LOCKOUT_MAX_SECONDS": 15 * 60,
     }

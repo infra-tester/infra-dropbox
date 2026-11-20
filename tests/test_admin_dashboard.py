@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from app import create_app
+from app import create_app, rate_limit
+from tests.support import make_client
 
 
 class AdminDashboardTests(unittest.TestCase):
@@ -20,7 +21,8 @@ class AdminDashboardTests(unittest.TestCase):
                 "ADMIN_PASSWORD": "test-admin",
             }
         )
-        self.client = self.application.test_client()
+        rate_limit.reset()
+        self.client = make_client(self.application)
 
     def tearDown(self):
         self.temp_dir.cleanup()

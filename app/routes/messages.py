@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 
 from app.db import db_connection, fetch_message, insert_message
 from app.security import (
@@ -36,6 +36,12 @@ def receive_sms():
     ):
         return jsonify({
             "error": "Provide a non-empty sender and message as strings."
+        }), 400
+
+    max_length = current_app.config["MAX_MESSAGE_LENGTH"]
+    if len(message) > max_length:
+        return jsonify({
+            "error": f"The message exceeds the {max_length} character limit."
         }), 400
 
     insert_message(message, sender=sender)

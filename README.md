@@ -13,14 +13,21 @@ InfraDropbox is a lightweight Flask app for sharing short messages and uploading
 ## Run locally
 
 1. Open a terminal in the project folder.
-2. Ensure your Python environment has the required packages installed (`flask` and `waitress`).
+2. Install the pinned dependencies into your Python environment:
+
+```bash
+pip install -r requirements.txt
+```
+
 3. Start the app:
 
 ```bash
 python run.py
 ```
 
-The app runs on `http://localhost:5000` by default.
+The server listens on port `5000` on all network interfaces. Open
+`http://localhost:5000` on this PC, or `http://<this-pc-ip>:5000` from another
+device on the same LAN.
 
 ## Project structure
 
@@ -59,6 +66,26 @@ appear on the Messages and Files pages, and the dashboard exposes storage
 limits, the allowed file-type list, and the bulk "clear all" actions. When no
 password is configured, the Admin page explains that access is unavailable
 and the server refuses all admin actions.
+
+Repeated failed sign-ins temporarily lock further attempts from that device
+(an exponentially growing wait, starting at 30 seconds after 5 failures), so
+a forgotten password cannot be guessed quickly.
+
+### Changing or recovering the password
+
+The password lives only in the `ADMIN_PASSWORD` environment variable; the
+server never stores it on disk. To rotate or recover it:
+
+1. Stop the server.
+2. Set a new value (for a persistent Windows setting, use
+   `setx ADMIN_PASSWORD "your-new-password"` and open a new terminal so the
+   variable is visible to the next start).
+3. Start the server again.
+
+Sessions are signed with a key regenerated on every start, so signing out
+everyone (including the administrator) is a side effect of every restart.
+Setting the variable to an empty value disables administrator access
+entirely rather than leaving it open.
 
 ## Supported file types
 

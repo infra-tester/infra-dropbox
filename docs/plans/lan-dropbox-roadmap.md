@@ -69,7 +69,7 @@ These are product areas, not a final route structure or UI specification.
 
 The order below is a suggested progression. Individual phases may be adjusted after each stage is reviewed.
 
-**Status (2026-11-19):** Phases 1–6 are complete. The remaining reliability and convenience work is still pending.
+**Status (2026-11-20):** Phases 1–7 are complete. Only the convenience improvements of Phase 8 remain.
 
 ### Phase 1 — Establish a reliable sharing foundation
 
@@ -115,11 +115,13 @@ Add the protected dashboard for managing messages, files, storage limits, allowe
 
 Review the application as a service used by a small number of devices on a shared network. Address upload and download safety, input validation, access protection, session handling, request limits, configuration and secret handling, and safe deployment settings. Development-only behavior such as Flask debug mode must not be enabled during normal use.
 
+**Status: complete.** Failed administrator sign-ins are tracked per client IP in process memory: after 5 consecutive failures the address waits out an exponentially growing lockout (30 seconds, doubling per extra failure, capped at 15 minutes, reported with `Retry-After`), and a successful sign-in clears the count; the state resets on server restart, which is an accepted trade-off. Every state-changing request must carry an `Origin` (or, when absent, a `Referer`) matching the request host or it is refused with `403` before the view runs; the SMS webhook is exempt because it authenticates with a bearer secret. Message submissions from both the web form and the SMS webhook are rejected past the 1000-character limit server-side, and the dashboard now renders that limit from configuration instead of a hardcoded attribute. All responses carry `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and a restrictive `Content-Security-Policy`; unknown `/api/` paths and API server errors return JSON while pages keep the HTML error pages. Credential handling stays environment-based — the README now documents rotation and recovery (set `ADMIN_PASSWORD`, restart) and the lockout behavior; moving to stored hashes remains open. Deployment hygiene: a pinned `requirements.txt` matches what the service docs already instructed, and the README describes the real `0.0.0.0` LAN binding instead of `localhost`. The upload/download safety review confirmed the existing controls already met the phase's goals (random stored names, server-side extension allowlist, `send_from_directory` with basename guards, env-only secrets, Waitress with debug never enabled). List endpoints intentionally remain unpaginated for the small-scale LAN use case.
+
 ### Phase 8 — Add convenience improvements
 
 Once the core sharing and administration features are reliable, consider improvements such as a QR code for opening the service on another device, clearer connection information, live updates, and better status or error feedback.
 
-**Next phase in focus: Phase 7 — Improve LAN safety and operational reliability.** The administrator dashboard is in place with configurable limits and file rules. The next phase hardens the service: access protection, session and secret handling, request limits, credential management and recovery, and safe deployment defaults.
+**Next phase in focus: Phase 8 — Add convenience improvements.** The service is now hardened: rate-limited administrator sign-in, same-origin enforcement on writes, server-side input limits, security headers, JSON API errors, and documented credential rotation. The remaining work is the convenience layer — a QR code for opening the service on another device, clearer connection information, live updates, and better status or error feedback.
 
 ## 6. Data and storage direction
 

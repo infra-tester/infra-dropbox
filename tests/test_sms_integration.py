@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from app import create_app
+from app import create_app, rate_limit
+from tests.support import make_client
 
 
 class SmsIntegrationTests(unittest.TestCase):
@@ -19,7 +20,8 @@ class SmsIntegrationTests(unittest.TestCase):
                 "SMS_WEBHOOK_SECRET": "sms-secret",
             }
         )
-        self.client = self.application.test_client()
+        rate_limit.reset()
+        self.client = make_client(self.application)
         self.headers = {"Authorization": "Bearer sms-secret"}
 
     def tearDown(self):

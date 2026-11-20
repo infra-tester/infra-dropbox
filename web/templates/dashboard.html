@@ -30,12 +30,12 @@
         placeholder="Type a message..."
         required
         rows="3"
-        maxlength="1000"
+        maxlength="{{ max_message_length }}"
       ></textarea>
 
       <div class="form-footer">
         <span class="character-count" aria-live="polite">
-          <span id="character-count">1000</span> characters left
+          <span id="character-count">{{ max_message_length }}</span> characters left
         </span>
         <button type="submit" class="btn">Send</button>
       </div>

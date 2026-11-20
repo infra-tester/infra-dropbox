@@ -283,7 +283,7 @@ if (searchInput) {
 
 if (messageInput && characterCount) {
   const updateCharacterCount = () => {
-    characterCount.textContent = 1000 - messageInput.value.length;
+    characterCount.textContent = messageInput.maxLength - messageInput.value.length;
   };
 
   messageInput.addEventListener("input", updateCharacterCount);
