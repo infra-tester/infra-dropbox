@@ -83,6 +83,8 @@ IDB.onClick = function onClick(selector, handler) {
 IDB.setConnection = function setConnection(online) {
   const badge = document.getElementById("connection-status");
 
+  document.body.classList.toggle("is-offline", !online);
+
   if (!badge) {
     return;
   }
@@ -93,10 +95,15 @@ IDB.setConnection = function setConnection(online) {
 };
 
 IDB.copyText = async function copyText(text) {
-  // Use the modern Clipboard API when available in a secure context.
+  // Use the modern Clipboard API when available in a secure context, but
+  // fall back if the browser rejects the write (for example, no focus).
   if (navigator.clipboard && window.isSecureContext) {
-    await navigator.clipboard.writeText(text);
-    return true;
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fall through to the selection-based copy below.
+    }
   }
 
   // Fallback for browsers accessing the dashboard over local HTTP.

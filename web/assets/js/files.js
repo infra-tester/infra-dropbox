@@ -28,6 +28,13 @@ function renderFiles(data) {
     data.max_bytes
   )} used`;
 
+  const progress = document.getElementById("storage-progress");
+
+  if (progress && data.max_bytes > 0) {
+    progress.max = data.max_bytes;
+    progress.value = Math.min(data.used_bytes, data.max_bytes);
+  }
+
   const renderKey = JSON.stringify([IDB.admin.isUnlocked(), data.files]);
 
   if (renderKey === lastRenderedFilesKey) {
@@ -194,9 +201,65 @@ async function deleteFile(id) {
 }
 
 const fileUploadForm = document.getElementById("file-upload-form");
+const fileInput = document.getElementById("file-input");
+const uploadZone = document.getElementById("upload");
+const selectedName = document.getElementById("upload-selected-name");
+
+function updateSelectedName() {
+  if (!selectedName || !fileInput) {
+    return;
+  }
+
+  selectedName.textContent = fileInput.files?.[0]?.name || "No file selected";
+}
+
+if (fileInput) {
+  fileInput.addEventListener("change", updateSelectedName);
+  updateSelectedName();
+}
 
 if (fileUploadForm) {
   fileUploadForm.addEventListener("submit", uploadFile);
+  fileUploadForm.addEventListener("reset", updateSelectedName);
+}
+
+if (uploadZone && fileInput) {
+  ["dragenter", "dragover"].forEach((type) => {
+    uploadZone.addEventListener(type, (event) => {
+      event.preventDefault();
+      uploadZone.classList.add("is-dragging");
+    });
+  });
+
+  uploadZone.addEventListener("dragleave", (event) => {
+    event.preventDefault();
+    uploadZone.classList.remove("is-dragging");
+  });
+
+  uploadZone.addEventListener("drop", (event) => {
+    event.preventDefault();
+    uploadZone.classList.remove("is-dragging");
+
+    const dropped = event.dataTransfer?.files;
+
+    if (!dropped || dropped.length === 0) {
+      return;
+    }
+
+    if (dropped.length > 1) {
+      setUploadStatus("Upload one file at a time.", "error");
+      return;
+    }
+
+    try {
+      fileInput.files = dropped;
+      updateSelectedName();
+      setUploadStatus(`${dropped[0].name} selected. Click Upload.`);
+    } catch (error) {
+      console.error("File selection failed:", error);
+      setUploadStatus("Could not use that file. Choose it manually.", "error");
+    }
+  });
 }
 
 if (document.getElementById("file-list")) {

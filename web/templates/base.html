@@ -27,20 +27,32 @@
   <body>
     <main class="container">
       <header class="site-header">
-        <a href="/" class="brand">Infra Dropbox</a>
+        <a href="/" class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          Infra Dropbox
+        </a>
 
-        <span
-          id="connection-status"
-          class="connection-badge"
-          role="status"
-          aria-live="polite"
-          hidden
-        ></span>
+        <div class="header-status">
+          <span class="network-pill">
+            <span class="network-dot" aria-hidden="true"></span>
+            Local network
+          </span>
+          <span
+            id="connection-status"
+            class="connection-badge"
+            role="status"
+            aria-live="polite"
+            hidden
+          ></span>
+        </div>
       </header>
 
       {% block content %}{% endblock %}
 
-      <footer class="footer">Local network only</footer>
+      <footer class="footer">
+        <span class="footer-dot" aria-hidden="true"></span>
+        Local network only
+      </footer>
     </main>
 
     <script src="{{ url_for('static', filename='js/common.js') }}"></script>

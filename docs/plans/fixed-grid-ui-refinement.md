@@ -1,6 +1,10 @@
 # Plan — Fixed-grid UI refinement
 
-**Status:** Draft for review
+> **Superseded:** the implemented dashboard uses the two-column dark design
+> from the later UI redesign brief, not the three-column layout proposed here.
+> This document is kept for historical context only.
+
+**Status:** Draft for review (superseded)
 **Date:** 2026-11-21
 **Context:** The one-page UI is complete (see git history: `a49f62c`). The current layout uses fractional columns (`1fr / 1.35fr / 1fr`), which leaves card sizes dependent on content width and makes the page feel unorganized. This plan replaces it with explicit column widths and a deliberate hierarchy.
 

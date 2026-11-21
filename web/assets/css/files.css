@@ -1,67 +1,141 @@
-.file-storage,
+.file-storage {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
 .file-rules,
 .file-meta {
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-size: 12px;
 }
 
-/* Upload form */
-.file-upload-form {
-  padding: 18px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+/* Storage meter */
+.storage-meter {
+  margin-bottom: 16px;
 }
 
-.file-upload-form input[type="file"] {
+.storage-progress {
   display: block;
   width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  padding: 9px;
-  border: 1px solid var(--color-border-strong);
+  height: 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.storage-progress::-webkit-progress-bar {
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+.storage-progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+.storage-progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+/* Upload area */
+.file-upload-form {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.upload-zone {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 18px 14px;
+  border: 1px dashed var(--color-border-strong);
   border-radius: var(--radius);
   background: var(--color-input-bg);
-  color: var(--color-text-secondary);
-  font: inherit;
-  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
 }
 
-.file-upload-form input[type="file"]::file-selector-button {
-  min-height: 32px;
-  margin: -2px 10px -2px -2px;
-  padding: 6px 12px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-accent);
-  color: var(--color-ink);
-  font: inherit;
-  font-size: 13px;
+.upload-zone:hover,
+.upload-zone.is-dragging {
+  border-color: var(--color-accent);
+  background: var(--color-accent-ghost);
+}
+
+.upload-zone > span {
+  pointer-events: none;
+}
+
+.upload-icon {
+  color: var(--color-accent);
+  font-size: 22px;
   font-weight: 600;
+  line-height: 1;
 }
 
-.file-upload-form input[type="file"]::file-selector-button:hover {
-  background: var(--color-accent-deep);
+.upload-title {
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.file-upload-form input[type="file"]:focus-visible {
-  outline: 2px solid var(--color-accent-bright);
-  outline-offset: 2px;
+.upload-browse {
+  color: var(--color-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-.file-upload-form .form-footer {
-  align-items: center;
+.upload-selected {
+  max-width: 100%;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
-.file-upload-form .file-rules {
-  flex: 1;
+.file-rules {
+  margin: 10px 0 0;
 }
 
 .file-status {
   min-height: 1.2em;
   margin: 10px 0 0;
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.file-upload-form .form-footer {
+  align-items: center;
+}
+
+.file-upload-form .file-status {
+  flex: 1;
+  margin: 0;
 }
 
 .file-status.is-error {
@@ -77,8 +151,10 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
-  margin: 28px 0 14px;
+  gap: 12px;
+  margin: 22px 0 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
 }
 
 .file-list-heading h2 {
@@ -87,27 +163,31 @@
 
 .files {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+  padding-right: 4px;
+  overflow-y: auto;
 }
 
 .file-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 12px 16px;
+  gap: 12px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 11px 13px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  transition:
-    border-color 150ms ease,
-    background-color 150ms ease;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  transition: border-color 150ms ease;
 }
 
 .file-card:hover {
   border-color: var(--color-border-strong);
-  background: var(--color-surface-raised);
 }
 
 .file-details {
@@ -116,11 +196,11 @@
 
 .file-name {
   display: block;
-  overflow-wrap: anywhere;
   color: var(--color-text);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
 .file-name:hover {
@@ -129,7 +209,7 @@
 
 .file-meta {
   display: block;
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 .file-actions {
@@ -138,20 +218,9 @@
   gap: 8px;
 }
 
-@media (max-width: 640px) {
-  .file-upload-form {
-    padding: 16px;
-  }
-
-  .file-list-heading {
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .file-storage {
-    overflow-wrap: anywhere;
-    max-width: 50%;
-    text-align: right;
+@media (max-width: 600px) {
+  .upload-zone {
+    padding: 14px;
   }
 
   .file-card {
@@ -167,20 +236,9 @@
     flex: 1;
     text-align: center;
   }
-
-  .file-upload-form input[type="file"] {
-    min-height: 44px;
-    padding: 8px;
-    font-size: 14px;
-  }
-
-  .file-upload-form input[type="file"]::file-selector-button {
-    margin-right: 6px;
-    padding-inline: 8px;
-  }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 400px) {
   .file-list-heading {
     flex-wrap: wrap;
   }
@@ -189,24 +247,11 @@
     max-width: 100%;
     text-align: left;
   }
-
-  .file-upload-form {
-    padding: 14px;
-  }
-
-  .file-rules,
-  .file-status {
-    overflow-wrap: anywhere;
-  }
 }
 
-@media (max-width: 340px) {
-  .file-actions {
-    gap: 6px;
-  }
-
-  .file-actions .copy-btn {
-    padding-inline: 6px;
-    font-size: 12px;
+@media (prefers-reduced-motion: reduce) {
+  .upload-zone,
+  .file-card {
+    transition: none;
   }
 }
