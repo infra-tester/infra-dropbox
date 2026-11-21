@@ -291,6 +291,59 @@ h2 {
   font-size: 13px;
 }
 
+/* Connection badge */
+.connection-badge {
+  padding: 4px 10px;
+  border: 1px solid var(--color-error-border);
+  border-radius: 999px;
+  background: var(--color-error-ghost);
+  color: var(--color-error);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.connection-badge[hidden] {
+  display: none;
+}
+
+/* LAN connection panel */
+.connection-hint {
+  margin: 0 0 12px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.lan-urls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lan-urls[hidden] {
+  display: none;
+}
+
+.lan-url-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.lan-url {
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
+}
+
 @media (max-width: 640px) {
   .container {
     width: calc(100% - 32px);

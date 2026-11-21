@@ -69,7 +69,7 @@ These are product areas, not a final route structure or UI specification.
 
 The order below is a suggested progression. Individual phases may be adjusted after each stage is reviewed.
 
-**Status (2026-11-20):** Phases 1–7 are complete. Only the convenience improvements of Phase 8 remain.
+**Status (2026-11-20):** All roadmap phases (1–8) are complete. The remaining open decisions are the section 8 items: backups and administrator credential storage.
 
 ### Phase 1 — Establish a reliable sharing foundation
 
@@ -121,7 +121,9 @@ Review the application as a service used by a small number of devices on a share
 
 Once the core sharing and administration features are reliable, consider improvements such as a QR code for opening the service on another device, clearer connection information, live updates, and better status or error feedback.
 
-**Next phase in focus: Phase 8 — Add convenience improvements.** The service is now hardened: rate-limited administrator sign-in, same-origin enforcement on writes, server-side input limits, security headers, JSON API errors, and documented credential rotation. The remaining work is the convenience layer — a QR code for opening the service on another device, clearer connection information, live updates, and better status or error feedback.
+**Status: complete.** The server detects its LAN addresses (default-route IP via a UDP-connect probe, hostname resolution as fallback), and the dashboard's "Open on another device" section lists each `http://<ip>:5000` URL with a copy button; when nothing can be detected it explains how to enter the PC's address manually. A connection badge in the header appears when a background request fails ("Offline — retrying") and clears on the next success, instead of overwriting the message and file counters with the word "offline". Both content pages show a proper status line — the Files page previously had no status element, so delete feedback there was silently dropped. Sending a message from the dashboard no longer reloads the page: it posts with `fetch` and reports success or the server's error inline, while the plain form action remains as a no-JS fallback. Both list endpoints send a content-hash `ETag` with `Cache-Control: no-cache` and answer `304 Not Modified` when nothing changed, so unchanged polls return an empty body. QR codes and push/SSE updates were considered and deliberately left out: copyable URLs and short-interval polling are enough for the intended scale.
+
+**All planned phases are complete.** What remains are the section 8 decisions — a simple backup/restore approach for the database and uploads, and whether to move the administrator credential from an environment variable to a stored hash — plus any conveniences the roadmap did not anticipate.
 
 ## 6. Data and storage direction
 

@@ -16,30 +16,6 @@ function messagesEndpoint() {
     : "/api/messages";
 }
 
-async function copyText(text) {
-  // Use the modern Clipboard API when available in a secure context.
-  if (navigator.clipboard && window.isSecureContext) {
-    await navigator.clipboard.writeText(text);
-    return true;
-  }
-
-  // Fallback for browsers accessing the dashboard over local HTTP.
-  const textarea = document.createElement("textarea");
-
-  textarea.value = text;
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-
-  document.body.appendChild(textarea);
-  textarea.select();
-
-  const successful = document.execCommand("copy");
-
-  textarea.remove();
-
-  return successful;
-}
-
 const copyFeedbackTimers = new WeakMap();
 
 async function handleCopy(card, text, line = null) {
@@ -57,7 +33,7 @@ async function handleCopy(card, text, line = null) {
   line?.classList.add("is-copied");
 
   try {
-    const successful = await copyText(text);
+    const successful = await IDB.copyText(text);
 
     feedback.textContent = successful
       ? line
@@ -228,13 +204,11 @@ async function loadMessages() {
     }
 
     renderMessages(await response.json());
+    IDB.setConnection(true);
   } catch (error) {
     console.error("Dashboard error:", error);
     showListMessage(container, "Could not load messages. Retrying...", true);
-
-    if (count.textContent !== "offline") {
-      count.textContent = "offline";
-    }
+    IDB.setConnection(false);
   }
 }
 
@@ -288,6 +262,50 @@ if (messageInput && characterCount) {
 
   messageInput.addEventListener("input", updateCharacterCount);
   updateCharacterCount();
+}
+
+const messageForm = document.getElementById("message-form");
+
+if (messageForm && messageInput) {
+  messageForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const sendStatus = document.getElementById("message-send-status");
+    const sendButton = messageForm.querySelector("button[type='submit']");
+
+    if (sendButton) {
+      sendButton.disabled = true;
+    }
+    IDB.setStatus(sendStatus, "Sending...");
+
+    try {
+      const response = await fetch("/send", {
+        method: "POST",
+        body: new FormData(messageForm),
+      });
+
+      if (!response.ok) {
+        throw new Error(await IDB.readError(response, "Could not send the message."));
+      }
+
+      messageForm.reset();
+      if (characterCount) {
+        characterCount.textContent = messageInput.maxLength;
+      }
+      IDB.setStatus(sendStatus, "Message sent.", "ok");
+    } catch (error) {
+      console.error("Send failed:", error);
+      IDB.setStatus(
+        sendStatus,
+        error.message || "Could not reach the server.",
+        "error"
+      );
+    } finally {
+      if (sendButton) {
+        sendButton.disabled = false;
+      }
+    }
+  });
 }
 
 if (document.getElementById("messages")) {

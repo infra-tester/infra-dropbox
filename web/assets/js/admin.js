@@ -13,12 +13,14 @@
       const wasUnlocked = state.unlocked;
 
       state.unlocked = Boolean(data.unlocked);
+      IDB.setConnection(true);
 
       if (wasUnlocked !== state.unlocked) {
         IDB.refreshAll();
       }
     } catch (error) {
       console.error("Admin status check failed:", error);
+      IDB.setConnection(false);
     }
   }
 

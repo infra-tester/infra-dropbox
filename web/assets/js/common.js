@@ -79,3 +79,109 @@ IDB.onClick = function onClick(selector, handler) {
     }
   });
 };
+
+IDB.setConnection = function setConnection(online) {
+  const badge = document.getElementById("connection-status");
+
+  if (!badge) {
+    return;
+  }
+
+  badge.hidden = online;
+  badge.textContent = online ? "" : "Offline — retrying";
+  badge.classList.toggle("is-offline", !online);
+};
+
+IDB.copyText = async function copyText(text) {
+  // Use the modern Clipboard API when available in a secure context.
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return true;
+  }
+
+  // Fallback for browsers accessing the dashboard over local HTTP.
+  const textarea = document.createElement("textarea");
+
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  const successful = document.execCommand("copy");
+
+  textarea.remove();
+
+  return successful;
+};
+
+async function loadLanUrls() {
+  const list = document.getElementById("lan-urls");
+  const fallback = document.getElementById("lan-urls-fallback");
+
+  if (!list || !fallback) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/network");
+
+    if (!response.ok) {
+      throw new Error("Network info is unavailable.");
+    }
+
+    const data = await response.json();
+
+    if (!data.urls || data.urls.length === 0) {
+      fallback.hidden = false;
+      return;
+    }
+
+    list.replaceChildren();
+
+    data.urls.forEach((url) => {
+      const item = document.createElement("li");
+      const address = document.createElement("span");
+      const copy = document.createElement("button");
+
+      item.className = "lan-url-item";
+      address.className = "lan-url";
+      address.textContent = url;
+      copy.type = "button";
+      copy.className = "copy-btn";
+      copy.textContent = "Copy";
+      copy.dataset.copyUrl = url;
+
+      item.append(address, copy);
+      list.appendChild(item);
+    });
+
+    list.hidden = false;
+  } catch (error) {
+    console.error("LAN URL lookup failed:", error);
+    fallback.hidden = false;
+  }
+}
+
+IDB.onClick("[data-copy-url]", async (button) => {
+  const status = document.getElementById("lan-urls-status");
+
+  try {
+    const copied = await IDB.copyText(button.dataset.copyUrl);
+
+    IDB.setStatus(status, copied ? "Copied." : "Copy failed.", copied ? "ok" : "error");
+
+    if (copied) {
+      button.textContent = "Copied!";
+      setTimeout(() => {
+        button.textContent = "Copy";
+      }, 1500);
+    }
+  } catch (error) {
+    console.error("Copy failed:", error);
+    IDB.setStatus(status, "Copy failed.", "error");
+  }
+});
+
+loadLanUrls();

@@ -8,6 +8,7 @@ InfraDropbox is a lightweight Flask app for sharing short messages and uploading
 - Search stored messages
 - Upload and download shared files
 - Admin dashboard for storage limits, file rules, and bulk cleanup
+- "Open on another device" panel with the detected LAN addresses and copy buttons
 - Local app storage for message and file data
 
 ## Run locally

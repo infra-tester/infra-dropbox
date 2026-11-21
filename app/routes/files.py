@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import sqlite3
@@ -37,12 +38,15 @@ def get_files():
         ).fetchall()
         used_bytes = storage_usage(conn)
 
-    return jsonify({
+    response = jsonify({
         "files": [file_metadata(row) for row in rows],
         "used_bytes": used_bytes,
         "max_bytes": current_app.config["MAX_STORAGE_SIZE"],
         "max_file_bytes": current_app.config["MAX_FILE_SIZE"],
     })
+    response.set_etag(hashlib.sha256(response.get_data()).hexdigest())
+    response.headers["Cache-Control"] = "no-cache"
+    return response.make_conditional(request)
 
 
 @files_bp.route("/api/files", methods=["POST"])

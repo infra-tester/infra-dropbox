@@ -93,11 +93,12 @@ async function loadFiles() {
     }
 
     renderFiles(await response.json());
+    IDB.setConnection(true);
   } catch (error) {
     console.error("File list error:", error);
     lastRenderedFilesKey = null;
     container.replaceChildren(IDB.emptyState("Could not load files. Retrying...", true));
-    storage.textContent = "offline";
+    IDB.setConnection(false);
   }
 }
 

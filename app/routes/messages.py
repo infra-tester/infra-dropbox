@@ -1,3 +1,5 @@
+import hashlib
+
 from flask import Blueprint, current_app, jsonify, request
 
 from app.db import db_connection, fetch_message, insert_message
@@ -14,7 +16,10 @@ messages_bp = Blueprint("messages_api", __name__)
 @messages_bp.route("/api/messages")
 def get_messages():
     search = (request.args.get("q") or "").strip()
-    return jsonify(fetch_message(search=search or None))
+    response = jsonify(fetch_message(search=search or None))
+    response.set_etag(hashlib.sha256(response.get_data()).hexdigest())
+    response.headers["Cache-Control"] = "no-cache"
+    return response.make_conditional(request)
 
 
 @messages_bp.route("/api/integrations/sms", methods=["POST"])
