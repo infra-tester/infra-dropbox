@@ -86,8 +86,8 @@ Duplicate IDs currently exist across pages and must be renamed uniquely, with JS
 
 - All scripts resolve the project root from `$PSScriptRoot` so they work from any working directory.
 - **No changes** to `server.py`, the instance lock, or the shutdown mechanism — scripts reuse existing behavior.
-- **Existing `idb` command:** keep the external PowerShell profile `idb` working unchanged while the new scripts are built and verified. Only after `scripts/` works: update `docs/lan-service.md` and the README run section to use `scripts\start.ps1` / `stop.ps1` / `status.ps1`, then either retire `idb` or make it a thin wrapper around the new scripts (operator's choice at that point).
-- **Docs:** `docs/lan-service.md` and the README are updated in the same change that declares `scripts/` verified — not before.
+- **Existing `idb` command:** keep the external PowerShell profile `idb` working unchanged while the new scripts are built and verified. Only after `scripts/` works: update `docs/windows-background-service.md` and the README run section to use `scripts\start.ps1` / `stop.ps1` / `status.ps1`, then either retire `idb` or make it a thin wrapper around the new scripts (operator's choice at that point).
+- **Docs:** `docs/windows-background-service.md` and the README are updated in the same change that declares `scripts/` verified — not before.
 
 ## 5. Out of scope
 

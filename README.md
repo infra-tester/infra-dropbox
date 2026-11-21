@@ -30,6 +30,18 @@ The server listens on port `5000` on all network interfaces. Open
 `http://localhost:5000` on this PC, or `http://<this-pc-ip>:5000` from another
 device on the same LAN.
 
+### Run as a background service (Windows only)
+
+```powershell
+.\scripts\start.ps1
+.\scripts\status.ps1
+.\scripts\stop.ps1
+```
+
+The PowerShell shortcut `idb [start|status|stop]` calls the same scripts.
+
+See [docs/windows-background-service.md](docs/windows-background-service.md) for setup, paths, and safety notes.
+
 ## Project structure
 
 ```
@@ -44,8 +56,9 @@ web/                 Everything the browser loads
   assets/            css/ and js/ served at /assets
 server.py            Waitress server + shutdown middleware
 run.py               Entry point (python run.py)
+scripts/             start.ps1 / status.ps1 / stop.ps1 (background service)
 tests/               unittest suite (python -m unittest discover -s tests)
-docs/                Design notes and roadmaps
+docs/                Design notes and plans
 ```
 
 ## Admin password
@@ -79,8 +92,9 @@ server never stores it on disk. To rotate or recover it:
 
 1. Stop the server.
 2. Set a new value (for a persistent Windows setting, use
-   `setx ADMIN_PASSWORD "your-new-password"` and open a new terminal so the
-   variable is visible to the next start).
+   `setx ADMIN_PASSWORD "your-new-password"`). `scripts\start.ps1` reads the
+   persisted user-level value directly, so a new terminal is not needed for the
+   service; a foreground `python run.py` does require one.
 3. Start the server again.
 
 Sessions are signed with a key regenerated on every start, so signing out
@@ -108,9 +122,10 @@ To persist the SMS integration secret for your Windows user account, set
 setx SMS_WEBHOOK_SECRET "your-long-random-secret"
 ```
 
-Close and reopen the terminal, then restart Infra Dropbox for the new setting
-to take effect. `ADMIN_PASSWORD` is optional and only enables administrator
-deletion actions:
+Restart Infra Dropbox for the new setting to take effect. `scripts\start.ps1`
+reads persisted user-level variables, so a new terminal is not needed for the
+service; a foreground `python run.py` does require one. `ADMIN_PASSWORD` is
+optional and only enables administrator deletion actions:
 
 ```powershell
 setx ADMIN_PASSWORD "your-admin-password"
