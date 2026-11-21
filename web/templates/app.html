@@ -7,7 +7,12 @@
     <div class="dashboard-row row-inputs">
     <section class="section app-card card-send" id="home">
       <div class="section-heading">
-        <h1>Send a message</h1>
+        <div class="section-title-wrap">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </span>
+          <h1>Send a message</h1>
+        </div>
       </div>
 
       <form
@@ -20,7 +25,7 @@
         <textarea
           id="message-input"
           name="message"
-          placeholder="Type a message..."
+          placeholder="Type or paste a message..."
           required
           rows="4"
           maxlength="{{ max_message_length }}"
@@ -30,7 +35,10 @@
           <span class="character-count" aria-live="polite">
             <span id="character-count">{{ max_message_length }}</span> characters left
           </span>
-          <button type="submit" class="btn">Send message</button>
+          <button type="submit" class="btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send message
+          </button>
         </div>
         <p class="admin-status" id="message-send-status" role="status" aria-live="polite"></p>
       </form>
@@ -38,7 +46,12 @@
 
     <section class="section app-card card-upload" id="upload-panel">
       <div class="section-heading">
-        <h1>Upload a file</h1>
+        <div class="section-title-wrap">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </span>
+          <h1>Upload a file</h1>
+        </div>
         <span class="file-storage" id="file-storage" aria-live="polite"
           >Loading storage...</span
         >
@@ -63,8 +76,10 @@
             class="file-input"
             required
           />
-          <span class="upload-icon" aria-hidden="true">+</span>
-          <span class="upload-title">Drop a file or <span class="upload-browse">browse</span></span>
+          <span class="upload-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          </span>
+          <span class="upload-title">Drop a file here, or <span class="upload-browse">browse</span></span>
           <span class="upload-selected" id="upload-selected-name">No file selected</span>
         </label>
 
@@ -76,6 +91,7 @@
         <div class="form-footer">
           <p class="file-status" id="file-upload-status" role="status" aria-live="polite"></p>
           <button type="submit" class="btn" id="file-upload-button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Upload
           </button>
         </div>
@@ -86,7 +102,12 @@
     <div class="dashboard-row row-library">
     <section class="section app-card card-messages" id="messages">
       <div class="section-heading">
-        <h1>Messages</h1>
+        <div class="section-title-wrap">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </span>
+          <h1>Messages</h1>
+        </div>
         <span class="message-count" id="message-count" aria-live="polite"
           >0 messages</span
         >
@@ -98,7 +119,7 @@
           id="message-search"
           class="search-input"
           type="search"
-          placeholder="Filter messages"
+          placeholder="Filter messages..."
           autocomplete="off"
         />
       </div>
@@ -112,7 +133,12 @@
 
     <section class="section app-card card-files" id="files">
       <div class="section-heading">
-        <h1>Files</h1>
+        <div class="section-title-wrap">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </span>
+          <h1>Files</h1>
+        </div>
         <span class="message-count" id="file-count" aria-live="polite"
           >0 files</span
         >
@@ -130,7 +156,12 @@
     <section class="section app-card card-admin" id="admin">
       <div class="admin-state" id="admin-signed-out"{% if signed_in %} hidden{% endif %}>
         <div class="section-heading">
-          <h1>Administrator</h1>
+          <div class="section-title-wrap">
+            <span class="section-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <h1>Administrator</h1>
+          </div>
         </div>
 
         {% if configured %}
@@ -141,12 +172,13 @@
               id="admin-signin-password"
               class="search-input"
               type="password"
+              placeholder="Enter admin password"
               autocomplete="current-password"
               required
             />
             <button type="submit" class="btn" id="admin-signin-btn">Sign in</button>
           </div>
-          <p class="admin-hint">Sign in to manage content and settings.</p>
+          <p class="admin-hint">Sign in to manage content, settings, and quotas.</p>
           <p class="admin-status" id="admin-page-status" role="status"></p>
         </form>
         {% else %}
@@ -161,7 +193,12 @@
           <div class="admin-side">
             <div class="section">
               <div class="section-heading">
-                <h1>Admin</h1>
+                <div class="section-title-wrap">
+                  <span class="section-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  </span>
+                  <h1>Admin Dashboard</h1>
+                </div>
                 <button type="button" class="btn btn-ghost" id="admin-lock-btn">
                   Lock
                 </button>
@@ -261,11 +298,16 @@
 
     <section class="section app-card card-lan" id="lan">
       <div class="section-heading">
-        <h1>Open on another device</h1>
+        <div class="section-title-wrap">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+          </span>
+          <h1>Open on another device</h1>
+        </div>
       </div>
 
       <p class="connection-hint">
-        Open one of these addresses from another device on the same network.
+        Open one of these addresses from another device on the same local network:
       </p>
 
       <div class="connection-info">
