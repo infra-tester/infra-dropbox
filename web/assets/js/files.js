@@ -1,11 +1,19 @@
 let lastRenderedFilesKey = null;
 
+function setStatus(id, text, tone = "") {
+  IDB.setStatus(document.getElementById(id), text, tone);
+}
+
+function setUploadStatus(text, tone = "") {
+  setStatus("file-upload-status", text, tone);
+}
+
 function setFileStatus(text, tone = "") {
-  IDB.setStatus(document.getElementById("file-status"), text, tone);
+  setStatus("file-status", text, tone);
 }
 
 function renderFiles(data) {
-  const container = document.getElementById("files");
+  const container = document.getElementById("file-list");
   const count = document.getElementById("file-count");
   const storage = document.getElementById("file-storage");
 
@@ -78,7 +86,7 @@ function renderFiles(data) {
 }
 
 async function loadFiles() {
-  const container = document.getElementById("files");
+  const container = document.getElementById("file-list");
   const storage = document.getElementById("file-storage");
 
   if (!container || !storage) {
@@ -116,7 +124,7 @@ async function uploadFile(event) {
   }
 
   if (!input.files || input.files.length === 0) {
-    setFileStatus("Choose a file to upload.", "error");
+    setUploadStatus("Choose a file to upload.", "error");
     return;
   }
 
@@ -125,7 +133,7 @@ async function uploadFile(event) {
   if (button) {
     button.disabled = true;
   }
-  setFileStatus("Uploading...");
+  setUploadStatus("Uploading...");
 
   try {
     const response = await fetch("/api/files", {
@@ -140,11 +148,11 @@ async function uploadFile(event) {
     const result = await response.json();
 
     form.reset();
-    setFileStatus(`${result.file.filename} uploaded.`, "ok");
+    setUploadStatus(`${result.file.filename} uploaded.`, "ok");
     IDB.refreshAll();
   } catch (error) {
     console.error("Upload failed:", error);
-    setFileStatus(error.message || "Could not reach the server.", "error");
+    setUploadStatus(error.message || "Could not reach the server.", "error");
   } finally {
     if (button) {
       button.disabled = false;
@@ -191,7 +199,7 @@ if (fileUploadForm) {
   fileUploadForm.addEventListener("submit", uploadFile);
 }
 
-if (document.getElementById("files")) {
+if (document.getElementById("file-list")) {
   loadFiles();
   IDB.onRefresh(loadFiles);
   setInterval(loadFiles, 5000);

@@ -30,7 +30,7 @@
 
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  --content-width: 760px;
+  --content-width: 1200px;
   --radius: 8px;
   --radius-sm: 6px;
 }
@@ -90,28 +90,66 @@ a {
   white-space: nowrap;
 }
 
-.navigation {
-  display: flex;
-  gap: 4px;
+/* One-page layout */
+.app-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-areas:
+    "send messages upload"
+    "lan messages files"
+    "admin admin admin";
+  align-items: start;
+  gap: 16px;
+  margin-top: 28px;
 }
 
-.nav-link {
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-muted);
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
+.card-send {
+  grid-area: send;
 }
 
-.nav-link:hover {
-  background: var(--color-surface-raised);
-  color: var(--color-text);
+.card-upload {
+  grid-area: upload;
 }
 
-.nav-link[aria-current="page"] {
-  background: var(--color-accent-faint);
-  color: var(--color-accent-bright);
+.card-lan {
+  grid-area: lan;
+}
+
+.card-messages {
+  grid-area: messages;
+}
+
+.card-files {
+  grid-area: files;
+}
+
+.card-admin {
+  grid-area: admin;
+}
+
+.section.app-card {
+  min-width: 0;
+  margin-top: 0;
+  padding: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 16px;
+}
+
+.admin-dashboard-grid .section {
+  margin-top: 0;
+}
+
+.admin-side {
+  display: grid;
+  align-content: start;
+  gap: 16px;
 }
 
 /* Sections */
@@ -204,7 +242,6 @@ h2 {
 
 .btn:focus-visible,
 .copy-btn:focus-visible,
-.nav-link:focus-visible,
 .brand:focus-visible {
   outline: 2px solid var(--color-accent-bright);
   outline-offset: 2px;
@@ -344,6 +381,17 @@ h2 {
   font-size: 14px;
 }
 
+@media (max-width: 1000px) {
+  .app-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "send upload"
+      "lan files"
+      "messages messages"
+      "admin admin";
+  }
+}
+
 @media (max-width: 640px) {
   .container {
     width: calc(100% - 32px);
@@ -354,18 +402,24 @@ h2 {
     gap: 14px 12px;
   }
 
-  .navigation {
-    width: 100%;
-    gap: 6px;
+  .app-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "send"
+      "upload"
+      "lan"
+      "messages"
+      "files"
+      "admin";
+    gap: 14px;
   }
 
-  .nav-link {
-    flex: 1;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 6px;
+  .section.app-card {
+    padding: 16px;
+  }
+
+  .admin-dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .section {
@@ -415,13 +469,8 @@ h2 {
     padding-top: 16px;
   }
 
-  .navigation {
-    gap: 4px;
-  }
-
-  .nav-link {
-    padding-inline: 4px;
-    font-size: 13px;
+  .section.app-card {
+    padding: 14px;
   }
 
   .section {
@@ -447,7 +496,7 @@ h2 {
     font-size: 14px;
   }
 
-  .nav-link {
-    font-size: 13px;
+  .section.app-card {
+    padding: 12px;
   }
 }

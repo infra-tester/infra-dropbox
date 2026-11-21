@@ -149,16 +149,49 @@ class TemplateTests(unittest.TestCase):
     def tearDown(self):
         self.temp_dir.cleanup()
 
-    def test_files_page_has_a_status_element(self):
-        page = self.client.get("/files")
+    def test_app_page_has_both_file_status_elements(self):
+        page = self.client.get("/")
 
         self.assertIn(b'id="file-status"', page.data)
+        self.assertIn(b'id="file-upload-status"', page.data)
 
     def test_pages_carry_the_connection_badge(self):
         for path in ("/", "/messages", "/files", "/admin"):
             with self.subTest(path=path):
-                page = self.client.get(path)
+                page = self.client.get(path, follow_redirects=True)
+
                 self.assertIn(b'id="connection-status"', page.data)
+
+    def test_legacy_page_routes_redirect_to_their_section(self):
+        for path, fragment in (
+            ("/messages", "messages"),
+            ("/files", "files"),
+            ("/admin", "admin"),
+        ):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(response.headers["Location"], f"/#{fragment}")
+
+    def test_single_page_contains_every_section(self):
+        page = self.client.get("/")
+
+        for section in ("home", "upload", "lan", "messages", "files", "admin"):
+            with self.subTest(section=section):
+                self.assertIn(f'id="{section}"'.encode(), page.data)
+
+        for asset in ("css/base.css", "css/admin.css", "css/messages.css",
+                      "css/files.css", "js/admin-page.js", "js/messages.js",
+                      "js/files.js"):
+            with self.subTest(asset=asset):
+                self.assertEqual(page.data.count(asset.encode()), 1)
+
+    def test_page_has_no_section_navigation(self):
+        page = self.client.get("/")
+
+        self.assertNotIn(b'class="section-tab"', page.data)
+        self.assertNotIn(b"js/nav.js", page.data)
 
     def test_dashboard_has_the_connection_panel_and_send_status(self):
         page = self.client.get("/")

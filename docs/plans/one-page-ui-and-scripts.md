@@ -17,16 +17,16 @@ These close the former roadmap section 8 items and other product-level choices:
 |---|---|
 | Admin credential | Keep `ADMIN_PASSWORD` environment variable as-is. No stored hash, no change-password flow. |
 | Backups | No application backup feature. The operator may manually copy `~/.lan-dropbox` into a OneDrive-synced folder. |
-| UI shape | Single page, section tabs (not a long scrolling page). |
+| UI shape | Single wide page with a responsive multi-column grid; all sections visible at once, stacked top-to-bottom on mobile. No section tabs. |
 | Service scripts | Start / stop / status PowerShell scripts. Not a Windows service or Task Scheduler installer. |
 | Old `idb` command | Kept unchanged until the new scripts are verified (see §4). |
 | Roadmap document | Deleted; this plan is the current planning record. |
 
-UI details (tab placement, interaction behavior) are intentionally left open for a closer design pass before or during implementation; the structure below is the agreed skeleton.
+The UI design pass confirmed a wide grid rather than tabs: no navigation controls, all sections visible together, and a single-column top-to-bottom stack on small screens.
 
 ## 3. One-page UI with section tabs
 
-> Note: exact tab placement, styling, and interaction details are to be confirmed in a short UI design pass. The following is the structural plan.
+> Note: the design pass replaced the tab interaction with a wide grid. The routing and ID decisions below still apply.
 
 ### 3.1 Routing — `app/routes/pages.py`
 
@@ -37,13 +37,14 @@ UI details (tab placement, interaction behavior) are intentionally left open for
 
 ### 3.2 Template — `web/templates/app.html`
 
-- One `<section>` per area:
-  - **Home** — send-message form, upload form, "Open on another device" panel.
+- One card per area/action:
+  - **Home** — send-message card, upload card, and "Open on another device" card.
   - **Messages** — search input, count, message list container.
   - **Files** — storage usage, count, file list container.
   - **Admin** — both states in the DOM: sign-in form (or "not configured" notice) and signed-in dashboard (overview, settings, danger zone).
-- Nav in `base.html` becomes tab controls (anchors like `href="/#home"`).
-- No-JS behavior: all sections render stacked; the plain `/send` form still works.
+- `base.html` has no section navigation; the four section IDs remain as scroll anchors so old URLs still land correctly.
+- Desktop grid: Send / Messages / Upload on the first row, LAN / Messages / Files on the second, Admin full width below. The signed-in admin area uses its own two-column grid. Tablet and mobile collapse to fewer columns and finally a single top-to-bottom stack.
+- No-JS behavior: all sections are visible in the same grid; the plain `/send` form still works.
 - Load styles once: `base.css`, `admin.css`, `messages.css`, `files.css`. Drop per-page `{% block page_styles %}`.
 - After the merge, delete `dashboard.html`, `messages.html`, `files.html`, `admin.html`.
 - `web/templates/partials/` remains available if the UI design pass wants shared fragments.
@@ -58,15 +59,15 @@ Duplicate IDs currently exist across pages and must be renamed uniquely, with JS
 
 ### 3.4 JavaScript — `web/assets/js/`
 
-- New small nav module (section of `common.js` or a `nav.js`): initial section from `location.hash`, tab click handling, `hashchange` for back/forward, `aria-current` updates.
+- No nav module. The old routes still redirect to `/#section`, and the browser scrolls to the matching section ID.
 - `admin-page.js`: replace the two `window.location.reload()` calls (after login and lock) with in-place show/hide of sign-in vs. dashboard blocks plus `IDB.refreshAll()`.
 - `messages.js`, `files.js`, `admin.js` keep their existing polling and `IDB.onRefresh` wiring; only ID references change.
 - CSP unchanged — no inline scripts; all JS served from `/assets`.
 
 ### 3.5 CSS — `web/assets/css/`
 
-- Adjust `base.css` nav styles for a tab appearance (active state via existing `aria-current` styling).
-- No broader visual redesign in this plan; reuse existing section/card styles. Final look is part of the UI design pass.
+- Replace `base.css` tab navigation styles with the `.app-grid` layout, card styling, and responsive breakpoints; widen `--content-width` for desktop.
+- Reuse existing section/card styles inside the grid; no broader visual redesign.
 
 ### 3.6 Tests — `tests/`
 
@@ -100,7 +101,7 @@ Duplicate IDs currently exist across pages and must be renamed uniquely, with JS
 ## 6. Verification
 
 1. `python -m unittest discover -s tests` — full suite green.
-2. Manual UI pass: `scripts\start.ps1` → open `/` → switch all four tabs; reload; browser back/forward; old URLs (`/messages`, `/files`, `/admin`) land on the correct section; admin sign-in and lock work without a full page reload; search, upload, download, delete still work.
+2. Manual UI pass: `scripts\start.ps1` → open `/` → confirm all sections are visible in the desktop grid; resize to mobile width and confirm a single top-to-bottom column; old URLs (`/messages`, `/files`, `/admin`) scroll to the correct section; admin sign-in and lock work without a full page reload; search, upload, download, delete still work.
 3. No-JS check: message form still posts via `/send`.
 4. Scripts pass: `status.ps1` before start, `start.ps1`, `status.ps1` while running, `stop.ps1`, `status.ps1` after stop.
 5. README no longer points at the deleted roadmap and still matches reality (run instructions, admin password section).
@@ -108,5 +109,5 @@ Duplicate IDs currently exist across pages and must be renamed uniquely, with JS
 ## 7. Implementation order
 
 1. `scripts/` folder (independent of UI; `idb` stays as-is until verified).
-2. UI design pass — confirm tab placement/behavior (short discussion).
+2. UI design pass — confirm layout (wide grid, no nav, mobile stack).
 3. One-page UI implementation + test updates.

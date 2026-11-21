@@ -7,6 +7,18 @@
     return IDB.readError(response, fallback);
   }
 
+  const signedOut = document.getElementById("admin-signed-out");
+  const signedIn = document.getElementById("admin-signed-in");
+
+  function showSignedIn(unlocked) {
+    if (!signedOut || !signedIn) {
+      return;
+    }
+
+    signedOut.hidden = unlocked;
+    signedIn.hidden = !unlocked;
+  }
+
   const signinForm = document.getElementById("admin-signin-form");
 
   if (signinForm) {
@@ -33,7 +45,13 @@
           return;
         }
 
-        window.location.reload();
+        passwordInput.value = "";
+        setStatus("admin-page-status", "");
+        showSignedIn(true);
+        await IDB.admin.sync();
+        loadStats();
+        loadSettings();
+        IDB.refreshAll();
       } catch (error) {
         console.error("Sign-in failed:", error);
         setStatus("admin-page-status", "Could not reach the server.", "error");
@@ -48,16 +66,31 @@
   if (lockButton) {
     lockButton.addEventListener("click", async () => {
       try {
-        await fetch("/api/admin/logout", { method: "POST" });
+        const response = await fetch("/api/admin/logout", { method: "POST" });
+
+        if (!response.ok) {
+          throw new Error(
+            await reportError(response, "Could not lock the admin session.")
+          );
+        }
+
+        setStatus("danger-status", "");
+        showSignedIn(false);
+        await IDB.admin.sync();
+        IDB.refreshAll();
       } catch (error) {
         console.error("Lock failed:", error);
+        setStatus("danger-status", "Could not lock. Please try again.", "error");
       }
-      window.location.reload();
     });
   }
 
+  function isVisible() {
+    return signedIn && !signedIn.hidden;
+  }
+
   async function loadStats() {
-    if (!document.getElementById("admin-stats")) {
+    if (!isVisible() || !document.getElementById("admin-stats")) {
       return;
     }
 
@@ -76,7 +109,36 @@
         `${IDB.formatBytes(data.used_bytes)} / ${IDB.formatBytes(data.max_bytes)}`;
     } catch (error) {
       console.error("Stats load failed:", error);
-      document.getElementById("stat-storage").textContent = "unavailable";
+      if (isVisible()) {
+        document.getElementById("stat-storage").textContent = "unavailable";
+      }
+    }
+  }
+
+  async function loadSettings() {
+    if (!isVisible() || !document.getElementById("admin-settings-form")) {
+      return;
+    }
+
+    const fileInput = document.getElementById("setting-max-file");
+    const storageInput = document.getElementById("setting-max-storage");
+    const extensionsInput = document.getElementById("setting-extensions");
+
+    try {
+      const response = await fetch("/api/admin/settings");
+
+      if (!response.ok) {
+        throw new Error(await reportError(response, "Could not load settings."));
+      }
+
+      const data = await response.json();
+
+      fileInput.value = data.max_file_bytes / (1024 * 1024);
+      storageInput.value = data.max_storage_bytes / (1024 ** 3);
+      extensionsInput.value = data.allowed_extensions.join(", ");
+    } catch (error) {
+      console.error("Settings load failed:", error);
+      setStatus("settings-status", error.message, "error");
     }
   }
 
@@ -87,27 +149,6 @@
     const storageInput = document.getElementById("setting-max-storage");
     const extensionsInput = document.getElementById("setting-extensions");
     const saveButton = document.getElementById("settings-save-btn");
-
-    async function loadSettings() {
-      try {
-        const response = await fetch("/api/admin/settings");
-
-        if (!response.ok) {
-          throw new Error(await reportError(response, "Could not load settings."));
-        }
-
-        const data = await response.json();
-
-        fileInput.value = data.max_file_bytes / (1024 * 1024);
-        storageInput.value = data.max_storage_bytes / (1024 ** 3);
-        extensionsInput.value = data.allowed_extensions.join(", ");
-      } catch (error) {
-        console.error("Settings load failed:", error);
-        setStatus("settings-status", error.message, "error");
-      }
-    }
-
-    loadSettings();
 
     settingsForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -211,5 +252,8 @@
     });
   }
 
+  IDB.onRefresh(() => showSignedIn(IDB.admin.isUnlocked()));
+
   loadStats();
+  loadSettings();
 })();

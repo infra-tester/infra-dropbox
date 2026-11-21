@@ -1,10 +1,19 @@
 import io
+import re
 import tempfile
 import unittest
 from pathlib import Path
 
 from app import create_app, rate_limit
 from tests.support import make_client
+
+
+def tag_is_hidden(page, element_id):
+    tag = re.search(
+        rb'<[^>]*\bid="' + element_id.encode() + rb'"[^>]*>', page.data
+    )
+
+    return bool(tag and re.search(rb"\bhidden\b", tag.group(0)))
 
 
 class AdminDashboardTests(unittest.TestCase):
@@ -38,24 +47,26 @@ class AdminDashboardTests(unittest.TestCase):
         )
 
     def test_admin_page_gates_the_dashboard_behind_sign_in(self):
-        page = self.client.get("/admin")
+        page = self.client.get("/admin", follow_redirects=True)
 
         self.assertEqual(page.status_code, 200)
         self.assertIn(b'id="admin-signin-form"', page.data)
-        self.assertNotIn(b"id=\"admin-settings-form\"", page.data)
+        self.assertIn(b'id="admin-settings-form"', page.data)
+        self.assertFalse(tag_is_hidden(page, "admin-signed-out"))
+        self.assertTrue(tag_is_hidden(page, "admin-signed-in"))
 
         self.login()
-        page = self.client.get("/admin")
+        page = self.client.get("/admin", follow_redirects=True)
 
-        self.assertIn(b'id="admin-settings-form"', page.data)
         self.assertIn(b'id="admin-clear-messages"', page.data)
         self.assertIn(b'id="admin-clear-files"', page.data)
-        self.assertNotIn(b'id="admin-signin-form"', page.data)
+        self.assertTrue(tag_is_hidden(page, "admin-signed-out"))
+        self.assertFalse(tag_is_hidden(page, "admin-signed-in"))
 
     def test_admin_page_explains_missing_configuration(self):
         self.application.config["ADMIN_PASSWORD"] = ""
 
-        page = self.client.get("/admin")
+        page = self.client.get("/admin", follow_redirects=True)
 
         self.assertEqual(page.status_code, 200)
         self.assertIn(b"not configured", page.data)
@@ -161,14 +172,13 @@ class AdminDashboardTests(unittest.TestCase):
         self.assertEqual(self.client.get("/api/files").get_json()["files"], [])
         self.assertEqual(list(upload_dir.iterdir()), [])
 
-    def test_content_pages_no_longer_ship_an_admin_panel(self):
-        for path in ("/messages", "/files"):
+    def test_legacy_content_urls_redirect_to_the_single_page(self):
+        for path, fragment in (("/messages", "messages"), ("/files", "files")):
             with self.subTest(path=path):
-                page = self.client.get(path)
-                self.assertEqual(page.status_code, 200)
-                self.assertNotIn(b"Administrator actions", page.data)
-                self.assertNotIn(b'id="admin-unlock"', page.data)
-                self.assertNotIn(b'id="admin-clear"', page.data)
+                response = self.client.get(path)
+
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(response.headers["Location"], f"/#{fragment}")
 
     def test_home_page_shows_the_configured_file_limit(self):
         page = self.client.get("/")

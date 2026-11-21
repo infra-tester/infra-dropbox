@@ -71,7 +71,7 @@ function showListMessage(container, text, isError = false) {
 }
 
 function renderMessages(messages) {
-  const container = document.getElementById("messages");
+  const container = document.getElementById("message-list");
   const count = document.getElementById("message-count");
 
   if (!container || !count) {
@@ -189,7 +189,7 @@ function renderMessages(messages) {
 }
 
 async function loadMessages() {
-  const container = document.getElementById("messages");
+  const container = document.getElementById("message-list");
   const count = document.getElementById("message-count");
 
   if (!container || !count) {
@@ -308,7 +308,7 @@ if (messageForm && messageInput) {
   });
 }
 
-if (document.getElementById("messages")) {
+if (document.getElementById("message-list")) {
   loadMessages();
   IDB.onRefresh(loadMessages);
   setInterval(loadMessages, 2000);

@@ -43,10 +43,14 @@ def _requester_ipv4() -> str:
 
 @pages_bp.route("/")
 def home():
+    configured = bool(configured_admin_password())
+    signed_in = configured and bool(session.get("admin"))
     return render_template(
-        "dashboard.html",
+        "app.html",
         max_file_limit=format_size(current_app.config["MAX_FILE_SIZE"]),
         max_message_length=current_app.config["MAX_MESSAGE_LENGTH"],
+        configured=configured,
+        signed_in=signed_in,
     )
 
 
@@ -81,18 +85,14 @@ def send_message():
 
 @pages_bp.route("/messages")
 def messages_page():
-    return render_template("messages.html")
+    return redirect("/#messages")
 
 
 @pages_bp.route("/files")
 def files_page():
-    return render_template("files.html")
+    return redirect("/#files")
 
 
 @pages_bp.route("/admin")
 def admin_page():
-    configured = bool(configured_admin_password())
-    signed_in = configured and bool(session.get("admin"))
-    return render_template(
-        "admin.html", configured=configured, signed_in=signed_in
-    )
+    return redirect("/#admin")

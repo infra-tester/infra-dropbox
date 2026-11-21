@@ -14,7 +14,14 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/admin.css') }}"
     />
-    {% block page_styles %}{% endblock %}
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/messages.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/files.css') }}"
+    />
   </head>
 
   <body>
@@ -29,33 +36,6 @@
           aria-live="polite"
           hidden
         ></span>
-
-        <nav class="navigation" aria-label="Main navigation">
-          <a
-            href="/"
-            class="nav-link"
-            {% if request.path == "/" %}aria-current="page"{% endif %}
-            >Home</a
-          >
-          <a
-            href="/messages"
-            class="nav-link"
-            {% if request.path == "/messages" %}aria-current="page"{% endif %}
-            >Messages</a
-          >
-          <a
-            href="/files"
-            class="nav-link"
-            {% if request.path == "/files" %}aria-current="page"{% endif %}
-            >Files</a
-          >
-          <a
-            href="/admin"
-            class="nav-link"
-            {% if request.path == "/admin" %}aria-current="page"{% endif %}
-            >Admin</a
-          >
-        </nav>
       </header>
 
       {% block content %}{% endblock %}

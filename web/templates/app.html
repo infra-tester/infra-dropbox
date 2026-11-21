@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Infra Dropbox{% endblock %}
+
+{% block content %}
+  <div class="app-grid">
+    <section class="section app-card card-send" id="home">
+      <h1>Send a message</h1>
+
+      <form
+        action="/send"
+        method="POST"
+        class="message-form"
+        id="message-form"
+      >
+        <label class="field-label" for="message-input">Message</label>
+        <textarea
+          id="message-input"
+          name="message"
+          placeholder="Type a message..."
+          required
+          rows="3"
+          maxlength="{{ max_message_length }}"
+        ></textarea>
+
+        <div class="form-footer">
+          <span class="character-count" aria-live="polite">
+            <span id="character-count">{{ max_message_length }}</span> characters left
+          </span>
+          <button type="submit" class="btn">Send</button>
+        </div>
+        <p class="admin-status" id="message-send-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="section app-card card-upload" id="upload">
+      <h1>Upload a file</h1>
+
+      <form class="file-upload-form" id="file-upload-form">
+        <label class="field-label" for="file-input">Choose a file</label>
+        <input
+          id="file-input"
+          name="file"
+          type="file"
+          required
+        />
+        <div class="form-footer">
+          <span class="file-rules"
+            >Up to {{ max_file_limit }} per file. Images, documents, media, text,
+            and archives.</span
+          >
+          <button type="submit" class="btn" id="file-upload-button">
+            Upload
+          </button>
+        </div>
+        <p class="file-status" id="file-upload-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="section app-card card-lan" id="lan">
+      <h1>Open on another device</h1>
+      <p class="connection-hint">
+        Open one of these addresses from another device on the same network.
+      </p>
+      <ul id="lan-urls" class="lan-urls" hidden></ul>
+      <p id="lan-urls-fallback" class="connection-hint" hidden>
+        Could not detect an address automatically. Open this PC's IP address
+        with port 5000 from another device.
+      </p>
+      <p class="admin-status" id="lan-urls-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="section app-card card-messages" id="messages">
+      <div class="section-heading">
+        <h1>Messages</h1>
+        <span class="message-count" id="message-count" aria-live="polite"
+          >0 messages</span
+        >
+      </div>
+
+      <div class="search-row">
+        <label class="field-label" for="message-search">Search</label>
+        <input
+          id="message-search"
+          class="search-input"
+          type="search"
+          placeholder="Filter messages"
+          autocomplete="off"
+        />
+      </div>
+
+      <p class="admin-status" id="message-status" role="status"></p>
+
+      <div id="message-list" class="messages">
+        <div class="empty-state">Loading...</div>
+      </div>
+    </section>
+
+    <section class="section app-card card-files" id="files">
+      <div class="section-heading">
+        <h1>Files</h1>
+        <span class="file-storage" id="file-storage" aria-live="polite"
+          >Loading storage...</span
+        >
+      </div>
+
+      <div class="file-list-heading">
+        <h2>Uploaded files</h2>
+        <span class="message-count" id="file-count" aria-live="polite"
+          >0 files</span
+        >
+      </div>
+      <div id="file-list" class="files">
+        <div class="empty-state">Loading...</div>
+      </div>
+
+      <p class="file-status" id="file-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="section app-card card-admin" id="admin">
+      <div class="admin-state" id="admin-signed-out"{% if signed_in %} hidden{% endif %}>
+        <h1>Administrator</h1>
+
+        {% if configured %}
+        <form class="admin-signin" id="admin-signin-form">
+          <label class="field-label" for="admin-signin-password">Password</label>
+          <input
+            id="admin-signin-password"
+            class="search-input"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+          <div class="form-footer">
+            <span class="admin-hint">Sign in to manage content and settings.</span>
+            <button type="submit" class="btn" id="admin-signin-btn">Sign in</button>
+          </div>
+          <p class="admin-status" id="admin-page-status" role="status"></p>
+        </form>
+        {% else %}
+        <p class="empty-state">
+          Administrator access is not configured on this server.
+        </p>
+        {% endif %}
+      </div>
+
+      <div class="admin-state" id="admin-signed-in"{% if not signed_in %} hidden{% endif %}>
+        <div class="admin-dashboard-grid">
+          <div class="admin-side">
+            <div class="section">
+              <div class="section-heading">
+                <h1>Admin</h1>
+                <button type="button" class="btn btn-ghost" id="admin-lock-btn">
+                  Lock
+                </button>
+              </div>
+
+              <h2>Overview</h2>
+              <div class="admin-stats" id="admin-stats">
+                <div class="admin-stat">
+                  <span class="admin-stat-label">Messages</span>
+                  <span class="admin-stat-value" id="stat-messages">&ndash;</span>
+                </div>
+                <div class="admin-stat">
+                  <span class="admin-stat-label">Files</span>
+                  <span class="admin-stat-value" id="stat-files">&ndash;</span>
+                </div>
+                <div class="admin-stat">
+                  <span class="admin-stat-label">Storage</span>
+                  <span class="admin-stat-value" id="stat-storage">&ndash;</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Danger zone</h2>
+              <p class="admin-hint">These actions cannot be undone.</p>
+              <div class="admin-danger-actions">
+                <button type="button" class="btn btn-danger" id="admin-clear-messages">
+                  Clear all messages
+                </button>
+                <button type="button" class="btn btn-danger" id="admin-clear-files">
+                  Clear all files
+                </button>
+              </div>
+              <p class="admin-status" id="danger-status" role="status"></p>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Settings</h2>
+            <form class="admin-settings-form" id="admin-settings-form">
+              <div class="admin-settings-grid">
+                <div>
+                  <label class="field-label" for="setting-max-file"
+                    >Per-file limit (MB)</label
+                  >
+                  <input
+                    class="search-input"
+                    type="number"
+                    id="setting-max-file"
+                    min="1"
+                    step="any"
+                    required
+                  />
+                </div>
+                <div>
+                  <label class="field-label" for="setting-max-storage"
+                    >Total storage limit (GB)</label
+                  >
+                  <input
+                    class="search-input"
+                    type="number"
+                    id="setting-max-storage"
+                    min="0.001"
+                    step="any"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="admin-settings-field">
+                <label class="field-label" for="setting-extensions"
+                  >Allowed file extensions</label
+                >
+                <textarea
+                  class="search-input admin-extensions-input"
+                  id="setting-extensions"
+                  rows="3"
+                  required
+                ></textarea>
+                <p class="admin-hint">
+                  Comma-separated, including the dot &mdash; for example: .png, .jpg,
+                  .pdf, .zip
+                </p>
+              </div>
+
+              <div class="form-footer">
+                <p class="admin-status" id="settings-status" role="status"></p>
+                <button type="submit" class="btn" id="settings-save-btn">
+                  Save settings
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+{% endblock %}
+
+{% block page_scripts %}
+  <script src="{{ url_for('static', filename='js/admin-page.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/messages.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/files.js') }}"></script>
+{% endblock %}

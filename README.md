@@ -52,7 +52,7 @@ app/                 Flask application package
   security.py        admin authorization helpers
   routes/            blueprints: pages, messages, files, admin
 web/                 Everything the browser loads
-  templates/         Jinja pages (partials/ for shared fragments)
+  templates/         base.html + app.html (one wide page, responsive grid)
   assets/            css/ and js/ served at /assets
 server.py            Waitress server + shutdown middleware
 run.py               Entry point (python run.py)
